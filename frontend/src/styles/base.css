@@ -1,6 +1,44 @@
-/* Initial responsive grey block verifies React and Bootstrap setup. */
-body { background: #dbdbdb; }
-.setup-check { background: #a5a5a5; min-block-size: 20em; }
-@media (min-width: 48rem) {
-  .setup-check { max-inline-size: 64em; margin-inline: auto; }
+/* Figma primitive greys. Bootstrap owns layout, alignment, gaps and padding. */
+:root {
+  --claw-grey-50: #dbdbdb;
+  --claw-grey-100: #c3c3c3;
+  --claw-grey-200: #a5a5a5;
+  --claw-grey-300: #868686;
+  --claw-grey-400: #686868;
+  --claw-grey-500: #4a4a4a;
+  --claw-grey-600: #3e3e3e;
+  --claw-grey-700: #313131;
+  --claw-grey-800: #252525;
+  --claw-grey-900: #191919;
+  --claw-grey-950: #0f0f0f;
 }
+body { background: var(--claw-grey-50); }
+.layout-width { max-inline-size: 100em; }
+.reading-width { max-inline-size: 64em; }
+.surface-50 { background: var(--claw-grey-50); }
+.surface-100 { background: var(--claw-grey-100); }
+.surface-200 { background: var(--claw-grey-200); }
+.surface-300 { background: var(--claw-grey-300); }
+.surface-400 { background: var(--claw-grey-400); }
+.surface-500 { background: var(--claw-grey-500); }
+/* Temporary minimum sizes keep empty layout parents visible. */
+.host-navigation { min-block-size: 4.75em; }
+.host-compact { min-block-size: 3em; }
+.host-heading { min-block-size: 6em; }
+.host-copy { min-block-size: 10em; }
+.host-media { min-block-size: 20em; }
+.host-collection { min-block-size: 32em; }
+.host-form { min-block-size: 28em; }
+.host-footer { min-block-size: 10em; }
+.host-copyright { min-block-size: 2em; }
+
+/* Desktop geometry; Bootstrap selects responsive variants. */
+.hero-copy-width { max-inline-size: 37.75em; }
+.hero-desktop-content-inset { padding-inline: clamp(3em, 5.208333vw, 6.25em); }
+.hero-desktop-heading-size { min-block-size: 14.5em; }
+.hero-desktop-copy-size { min-block-size: 5.75em; }
+.hero-desktop-actions-size { min-block-size: 4em; }
+.about-body-width { max-inline-size: 79.75em; }
+.adopt-desktop-scene { min-block-size: 42em; }
+.adopt-desktop-media-size { min-block-size: 38.25em; }
+.adopt-desktop-copy-size { min-block-size: 20em; }
