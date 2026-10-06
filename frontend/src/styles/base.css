@@ -21,24 +21,70 @@ body { background: var(--claw-grey-50); }
 .surface-300 { background: var(--claw-grey-300); }
 .surface-400 { background: var(--claw-grey-400); }
 .surface-500 { background: var(--claw-grey-500); }
-/* Temporary minimum sizes keep empty layout parents visible. */
-.host-navigation { min-block-size: 4.75em; }
-.host-compact { min-block-size: 3em; }
-.host-heading { min-block-size: 6em; }
-.host-copy { min-block-size: 10em; }
-.host-media { min-block-size: 20em; }
-.host-collection { min-block-size: 32em; }
-.host-form { min-block-size: 28em; }
-.host-footer { min-block-size: 10em; }
-.host-copyright { min-block-size: 2em; }
+/* Empty image/component placeholders keep their original geometry.
+   Populated text parents retain fills and size naturally to their content. */
+.empty-host.host-navigation { min-block-size: 4.75em; }
+.empty-host.host-compact { min-block-size: 3em; }
+.empty-host.host-heading { min-block-size: 6em; }
+.empty-host.host-copy { min-block-size: 10em; }
+.empty-host.host-media { min-block-size: 20em; }
+.empty-host.host-collection { min-block-size: 32em; }
+.empty-host.host-form { min-block-size: 28em; }
+.empty-host.host-footer { min-block-size: 10em; }
+.empty-host.host-copyright { min-block-size: 2em; }
+.adopt-desktop-scene { min-block-size: 42em; }
+.empty-host.adopt-desktop-media-size { min-block-size: 38.25em; }
 
-/* Desktop geometry; Bootstrap selects responsive variants. */
+/* Desktop widths and padding retain the responsive composition. */
 .hero-copy-width { max-inline-size: 37.75em; }
 .hero-desktop-content-inset { padding-inline: clamp(3em, 5.208333vw, 6.25em); }
-.hero-desktop-heading-size { min-block-size: 14.5em; }
-.hero-desktop-copy-size { min-block-size: 5.75em; }
-.hero-desktop-actions-size { min-block-size: 4em; }
 .about-body-width { max-inline-size: 79.75em; }
-.adopt-desktop-scene { min-block-size: 42em; }
-.adopt-desktop-media-size { min-block-size: 38.25em; }
-.adopt-desktop-copy-size { min-block-size: 20em; }
+
+/* Text lives inside the original filled layout parents. */
+.page-copy { color: #000; margin: 0; min-inline-size: 0; overflow-wrap: break-word; }
+.hero-heading-group { gap: 14px; }
+.hero-eyebrow { font-size: 16px; font-weight: 600; line-height: 1.3; }
+.hero-title { font-size: 44px; font-weight: 700; line-height: 1.04; letter-spacing: -1.54px; }
+.hero-description { max-inline-size: 610px; font-size: 17px; font-weight: 600; line-height: 1.5; }
+.hero-actions .btn { color: #000; min-block-size: 52px; padding: 13px 24px; font-size: 16px; font-weight: 600; }
+.hero-actions .btn-primary { --bs-btn-bg: #0099ff; --bs-btn-border-color: #0099ff; }
+.hero-actions .btn-outline-primary { --bs-btn-color: #000; --bs-btn-border-color: #0099ff; }
+.hero-actions .btn:focus-visible { outline: 3px solid #000; outline-offset: 3px; }
+.section-heading { font-size: 36px; font-weight: 700; line-height: 1.12; letter-spacing: -1.08px; }
+.section-tagline { font-size: 20px; font-weight: 600; line-height: 1.45; }
+.body-copy { font-size: 17px; line-height: 1.6; }
+.appreciation { font-size: 22px; font-weight: 600; line-height: 1.4; }
+.dogs-eyebrow { font-size: 20px; font-weight: 600; line-height: 1.3; }
+.dogs-title { font-size: 36px; font-weight: 700; line-height: 1.12; }
+.dog-name { font-size: 36px; font-weight: 700; line-height: 1.2; }
+.profile-heading { font-size: 21px; font-weight: 700; line-height: 1.4; }
+.profile-copy { font-size: 17px; line-height: 1.6; }
+.profile-editorial-group { gap: 12px !important; }
+.personality-group { display: flex; flex-direction: column; gap: 12px; }
+.personality-list { padding-inline-start: 24px; font-size: 17px; line-height: 1.5; }
+.personality-list li + li { margin-block-start: 8px; }
+[data-layout='mission-copy-column'], [data-layout='care-copy-column'] { display: flex; align-items: center; }
+[data-layout='profile-story-group'] { gap: 40px !important; }
+[data-layout='dogs-hero'] .layout-width { padding-inline: 20px !important; }
+[data-layout='hero-mobile-variant'] .layout-width { padding-inline: 20px !important; }
+@media (min-width: 992px) {
+  .hero-desktop-content-inset { padding-inline-end: 0; }
+  .hero-desktop-content-inset + [data-layout='hero-desktop-visual-column'] { padding-inline-start: 40px; }
+  .hero-eyebrow { font-size: clamp(16px, 1.46vw, 28px); }
+  .hero-title { font-size: clamp(44px, 4.6875vw, 90px); line-height: 1.2; letter-spacing: normal; }
+  .hero-description { font-size: 20px; }
+  .hero-actions .btn { min-block-size: 64px; font-size: 20px; padding: 16px 24px; }
+  .section-heading { font-size: 48px; }
+  .section-tagline { font-size: 28px; }
+  .body-copy { font-size: 20px; }
+  .dogs-title { font-size: 72px; }
+  .dogs-eyebrow { font-size: 40px; }
+  [data-layout='dogs-hero'] .layout-width { padding-inline: clamp(48px, 7.5vw, 144px) !important; }
+  [data-layout='dog-profile'] .layout-width { max-inline-size: 1576px; }
+  .personality-list { columns: 2; column-gap: 48px; }
+  .personality-list li { break-inside: avoid; }
+}
+
+.footer-copy { font-size: 16px; line-height: 1.5; }
+.footer-heading { font-size: 20px; font-weight: 700; line-height: 1.4; }
+[data-layout='copyright-parent'] .page-copy { text-align: center; }
