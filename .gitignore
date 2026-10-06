@@ -1,0 +1,10 @@
+.DS_Store
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+
+# Local setup and layout notes (excluded from commit history).
+/CLAW_SETUP.md
+/frontend/LAYOUT_DRAFT.md

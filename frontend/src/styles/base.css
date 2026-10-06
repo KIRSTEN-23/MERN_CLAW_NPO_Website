@@ -1,0 +1,6 @@
+/* Initial responsive grey block verifies React and Bootstrap setup. */
+body { background: #dbdbdb; }
+.setup-check { background: #a5a5a5; min-block-size: 20em; }
+@media (min-width: 48rem) {
+  .setup-check { max-inline-size: 64em; margin-inline: auto; }
+}
