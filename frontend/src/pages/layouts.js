@@ -1,13 +1,47 @@
 import React from 'react';
+import { HomeImage } from '../components/home-assets.js';
+import { Header, Footer } from '../components/site-shell.js';
+import { HeroActions, FeaturedDogs, DogListing, DonationForm, DogAttributes, AdoptionStatus, action } from '../components/public.js';
 const h = React.createElement;
-// Page copy from Ready for dev: Responsive UI screens; component hosts stay empty.
+// Responsive page layouts, copy, supplied assets and Bootstrap components.
 const group = (name, classes, children = [], tag = 'div', source) => h(tag, {
   key: name, className: classes, 'data-layout': name,
   ...(['about', 'donation'].includes(name) ? { id: name } : {}),
   ...(source ? { 'data-figma-node': source } : {}),
   ...(tag === 'section' ? { 'aria-label': name.replaceAll('-', ' ') } : {}),
 }, ...children);
-const host = (name, size, shade = 200, extra = '') => group(name, `empty-host host-${size} surface-${shade} ${extra}`);
+const componentHosts = {
+  'featured-dogs-collection-parent': () => h(FeaturedDogs, { mobile: true }),
+  'featured-dogs-desktop-carousel-parent': () => h(FeaturedDogs),
+  'browse-actions-parent': () => action(['Browse All Pups ', h('i', { key: 'arrow', className: 'bi bi-arrow-up-right ms-2', 'aria-hidden': true })], '#/dogs'),
+  'in-care-desktop-browse-actions-parent': () => action(['Browse All Pups ', h('i', { key: 'arrow', className: 'bi bi-arrow-up-right ms-2', 'aria-hidden': true })], '#/dogs'),
+  'adopt-actions-parent': () => action('View Available Pups', '#/dogs'),
+  'adopt-desktop-actions-parent': () => action('View Available Pups', '#/dogs'),
+  'donation-form-parent': () => h(DonationForm),
+  'dog-attributes-parent': () => h(DogAttributes),
+  'dog-status-parent': () => h(AdoptionStatus),
+  'adoption-actions-parent': () => action('Adopt Now', '#/virtual-adoption'),
+};
+const dogsHeroImage = () => group('dogs-hero-assets-parent', 'surface-300 dogs-header-photo', [
+  h('img', { src: '/public/assets/dogs/hero-photo.png', width: 1153, height: 532,
+    alt: 'A woman holding a happy beagle', className: 'dogs-header-image', decoding: 'async' }),
+]);
+const imageHosts = {
+  'dog-profile-assets-parent': ['bella', 'Bella, a brown Boerboel in CLAW’s care', ''],
+  'hero-assets-parent': ['heroSmall', 'A woman spending time with a golden retriever', 'home-hero-mobile-image'],
+  'hero-desktop-assets-parent': ['heroPhoto', 'A woman spending time with a golden retriever', 'home-hero-desktop-image'],
+  'mission-assets-parent': ['rescue', 'A grey rescue dog at CLAW', ''],
+  'care-assets-parent': ['puppy', 'A small white and tan puppy looking out of a box', ''],
+  'adopt-assets-parent': ['adoption', 'Two puppies waiting for a home', ''],
+  'adopt-desktop-assets-parent': ['adoption', 'Two puppies waiting for a home', ''],
+};
+const host = (name, size, shade = 200, extra = '') => name === 'dogs-hero-assets-parent' ? dogsHeroImage() : imageHosts[name]
+  ? group(name, `surface-${shade} home-image-host ${extra}`, [h(HomeImage, {
+      asset: imageHosts[name][0], alt: imageHosts[name][1], className: imageHosts[name][2], eager: name.startsWith('hero'),
+    })])
+  : componentHosts[name]
+  ? group(name, `surface-${shade} ${extra}${['adopt-actions-parent', 'adopt-desktop-actions-parent'].includes(name) ? ' d-flex justify-content-end' : ''}`, [componentHosts[name]()])
+  : group(name, `empty-host host-${size} surface-${shade} ${extra}`);
 // Retain the original filled layout parents when inserting semantic text.
 const copySurfaces = {
   'hero-description-parent': 'host-copy surface-300',
@@ -31,20 +65,13 @@ const copy = (name, tag, text, source, extra = '') => {
   return group(name, surface, [content], 'div', source);
 };
 const heroHeading = desktop => group(desktop ? 'hero-desktop-heading-parent' : 'hero-heading-parent',
-  `host-heading surface-200 d-flex flex-column hero-heading-group `, [
+  `host-heading surface-200 d-flex flex-column gap-3 hero-heading-group `, [
     copy('hero-eyebrow', 'p', 'Changing Lives. One Paw at a Time.', desktop ? '6224:32382' : '6373:42148', 'hero-eyebrow'),
-    copy('hero-title', 'h1', 'Adopt a furry friend Today', desktop ? '6224:32381' : '6373:42151', 'hero-title'),
+    copy('hero-title', 'h1', [h('span', { key: 'adopt', className: 'hero-title-accent' }, 'Adopt'), ' a furry friend Today'], desktop ? '6224:32381' : '6373:42151', 'hero-title'),
   ]);
-const scrollToSection = event => {
-  event.preventDefault();
-  document.getElementById(event.currentTarget.hash.slice(1))?.scrollIntoView({ behavior: 'smooth' });
-};
 const heroActions = desktop => group(desktop ? 'hero-desktop-actions-parent' : 'hero-actions-parent',
-  `surface-400 hero-actions d-flex flex-column flex-lg-row gap-3 host-compact`, [
-    h('a', { key: 'donate', href: '#donation', onClick: scrollToSection, className: 'btn btn-primary btn-lg rounded-pill' }, 'Donate Now'),
-    h('a', { key: 'learn', href: '#about', onClick: scrollToSection, className: 'btn btn-outline-primary btn-lg rounded-pill' }, 'Learn More'),
-  ], 'div', '6346:41727');
-const personality = () => group('dog-personality-parent', 'host-copy surface-200 page-copy personality-group', [
+  'surface-400', [h(HeroActions)], 'div', '6346:41727');
+const personality = () => group('dog-personality-parent', 'host-copy surface-200 page-copy d-flex flex-column gap-3 personality-group', [
   copy('personality-heading', 'h2', 'Personality', '6378:42650', 'profile-heading'),
   h('ul', { key: 'traits', className: 'personality-list mb-0' }, ...[
     'Gentle and affectionate', 'Loyal to the people she trusts', 'Playful and energetic',
@@ -54,8 +81,8 @@ const personality = () => group('dog-personality-parent', 'host-copy surface-200
 ]);
 
 const col = (name, classes, children) => group(name, classes, children);
-const row = (name, children) => group(name, 'row g-4 g-lg-5', children);
-const stack = (name, children, extra = '') => group(name, `d-flex flex-column gap-4 ${extra}`, children);
+const row = (name, children) => group(name, 'row g-3', children);
+const stack = (name, children, extra = '') => group(name, `d-flex flex-column gap-3 ${extra}`, children);
 const section = (name, children, shade = 100, source) => group(name, `surface-${shade} py-4 py-lg-5`,
   [group(`${name}-container`, 'container-fluid layout-width px-3 px-lg-5', children)], 'section', source);
 const introductions = {
@@ -69,90 +96,29 @@ const intro = name => {
     copy('dogs-eyebrow', 'p', 'Meet our Dogs', '6227:32755', 'dogs-eyebrow'),
     copy('dogs-heading-parent', 'h1', 'Dogs in our Care', '6227:32498', 'dogs-title'),
     copy('dogs-description-parent', 'p', 'Find a Furry Friend whose story speaks to you and become part of their journey.', '2844:3077', 'body-copy'),
-  ], 'justify-content-center ');
+  ], 'justify-content-center text-start');
   const [title, tagline, titleSource, taglineSource] = introductions[name];
   return stack(`${name}-intro-group`, [
     copy(`${name}-heading-parent`, 'h2', title, titleSource, 'section-heading'),
     copy(`${name}-description-parent`, 'p', tagline, taglineSource, 'section-tagline'),
   ], 'text-center section-introduction');
 };
-const header = () => group('navigation-parent', 'empty-host host-navigation surface-400', [], 'header');
-const footerText = (name, text, tag = 'p') =>
-  copy(name, tag, text, undefined, tag === 'h2' ? 'footer-heading' : 'footer-copy');
-const footerVariant = (name, mobile, children) => group(name,
-  mobile ? 'd-lg-none d-flex flex-column gap-3' : 'd-none d-lg-flex flex-column gap-3', children);
-const footerLinks = (name, title, labels) => [
-  footerText(`${name}-heading`, title, 'h2'),
-  group(`${name}-list`, 'd-flex flex-column gap-3', labels.map((label, index) =>
-    footerText(`${name}-${index}`, label))),
-];
-const footer = (extended = false, pageName = 'home') => {
-  const fullDescription = 'We Are a Community Led Animal Welfare project of the International Fund for Animal Welfare dedicated to rescuing, rehabilitating and rehoming animals in need.';
-  const shortDescription = 'We Are dedicated to rescuing rehabilitating and rehoming animals in need. Thank you for supporting our mission';
-  const address = 'Un-named Rd, Durban Deep, Roodepoort 237-Iq, Johannesburg, 1724';
-  const desktopLinks = pageName === 'dogs'
-    ? ['Home', 'About Us', 'Dog Gallery', 'Virtual Adoption']
-    : ['Home', 'About Us', 'Our Dogs', 'Donate'];
-  const mobileLinks = pageName === 'dog-details'
-    ? ['Home', 'About Us', 'Dog Gallery', 'Virtual Adoption', 'Donation', 'Contact Us']
-    : ['Home', 'About Us', 'Our Dogs', 'Donate', 'Contact Us'];
-  return group('footer-container', 'surface-500', [
-    group('footer-groups', 'container-fluid layout-width px-3 px-lg-5 py-4 py-lg-5', [row('footer-columns', [
-      col('brand-column', extended ? 'col-12 col-lg-4' : 'col-12 col-lg-6', [stack('brand-group', [
-        host('brand-assets-parent', 'compact', 300),
-        group('brand-description-parent', 'host-copy surface-400', [
-          footerVariant('brand-description-desktop', false, [
-            footerText('brand-description-desktop-copy', extended ? shortDescription : fullDescription),
-            ...(!extended ? [footerText('brand-desktop-thanks', 'Thank you for supporting our mission!')] : []),
-          ]),
-          footerVariant('brand-description-mobile', true, [
-            footerText('brand-description-mobile-copy', pageName === 'dog-details' ? shortDescription : fullDescription),
-            ...(pageName !== 'dog-details' ? [footerText('brand-mobile-thanks', 'Thank you for supporting our mission!')] : []),
-          ]),
-        ]),
-      ])]),
-      col('links-column', extended ? 'col-12 col-lg-2' : 'col-12 col-lg-3', [
-        group('footer-links-parent', 'host-footer surface-400', [
-          footerVariant('footer-links-desktop', false, footerLinks('desktop-links', extended ? 'Quick Links' : 'Links', desktopLinks)),
-          footerVariant('footer-links-mobile', true, footerLinks('mobile-links', pageName === 'dog-details' ? 'Quick Links' : 'Links', mobileLinks)),
-        ]),
-      ]),
-      ...(extended ? [col('support-column', 'col-12 col-lg-2 d-none d-lg-block', [
-        group('footer-support-parent', 'host-footer surface-400', footerLinks('footer-support', 'Support', [
-          'Donate Now', 'Monthly Giving', 'Corporate - Partnership', 'Volunteer', 'FAQs',
-        ])),
-      ])] : []),
-      col('contact-column', extended ? 'col-12 col-lg-4' : 'col-12 col-lg-3', [
-        group('footer-contact-parent', 'host-footer surface-400', [
-          footerVariant('footer-contact-desktop', false, [
-            footerText('desktop-contact-heading', extended ? 'CONTACT US' : 'Contact Us', 'h2'),
-            footerText('desktop-contact-address', address),
-            footerText('desktop-contact-email', extended ? 'info@claw.co.za' : 'CLAWsouthafrica@gmail.com'),
-          ]),
-          footerVariant('footer-contact-mobile', true, [
-            footerText('mobile-contact-heading', pageName === 'dog-details' ? 'CONTACT US' : 'Contact Us', 'h2'),
-            footerText('mobile-contact-address', address),
-            footerText('mobile-contact-email', pageName === 'dog-details' ? 'info@claw.co.za' : 'CLAWsouthafrica@gmail.com'),
-          ]),
-        ]),
-      ]),
-    ])]),
-    group('copyright-parent', 'host-copyright surface-300', [
-      footerVariant('copyright-desktop', false, [footerText('desktop-copyright', '©2005 Claw.All rights reserved')]),
-      footerVariant('copyright-mobile', true, [footerText('mobile-copyright', '©2005 CLAW. All rights reserved.')]),
-    ]),
-  ], 'footer');
-};
-const page = (name, sections, extended = false) => group(name, '', [
-  name === 'home' ? group('mobile-navigation-wrapper', 'd-lg-none', [header()]) : header(),
-  group(`${name}-main`, '', sections, 'main'), footer(extended, name),
+const header = () => h(Header);
+const page = (name, sections, extended = false) => group(name, `claw-theme${name === 'home' ? ' home-assets-page' : ''}`, [
+  h(Header, { home: name === 'home' }),
+  group(`${name}-main`, '', sections, 'main'), h(Footer),
 ]);
 
 export function Home() {
+  const heroPaw = () => h('div', { className: 'hero-paw-layer', 'aria-hidden': true },
+    h('img', { src: '/public/assets/home/hero-paw.svg', width: 1082, height: 1080, alt: '' }));
   return page('home', [
+    h('svg', { width: 0, height: 0, 'aria-hidden': true, style: { position: 'absolute' } },
+      h('defs', null, h('clipPath', { id: 'care-section-wave', clipPathUnits: 'objectBoundingBox' },
+        h('path', { d: 'M0 .105 C.06 .01 .16 .115 .32 .105 S.55 0 .76 .07 S.94 .115 1 .1 L1 .94 C.94 1 .91 .98 .84 .94 S.68 .91 .52 .96 S.34 .995 .2 .955 S.07 1 0 .95 Z' })))),
     // Mobile hero stacks copy, full-width Bootstrap actions and the asset host.
     group('hero-mobile-variant', 'd-lg-none', [
-    section('hero', [row('hero-columns', [
+    section('hero', [heroPaw(), row('hero-columns', [
       col('hero-content-column', 'col-12 col-lg-5', [stack('hero-content-group', [
         heroHeading(false), copy('hero-description-parent', 'p', "Virtually adopt a pup — help us provide the care, love and support they need while they wait for their forever home.", '6373:42154', 'hero-description'),
         heroActions(false),
@@ -163,7 +129,8 @@ export function Home() {
     // Desktop hero retains the original viewport-sized image area and overlay navigation.
     group('hero-desktop-variant', 'd-none d-lg-block', [
       group('hero-desktop', 'position-relative surface-100 min-vh-100', [
-        group('desktop-navigation-wrapper', 'position-absolute top-0 start-0 w-100 z-1', [header()]),
+        h('div', { className: 'hero-curved-copy-surface', 'aria-hidden': true }),
+        heroPaw(),
         group('hero-desktop-columns', 'row g-0 min-vh-100', [
           col('hero-desktop-content-column', 'col-5 d-flex align-items-center hero-desktop-content-inset', [
             stack('hero-desktop-content-group', [
@@ -195,7 +162,7 @@ export function Home() {
     ]),
     group('in-care-desktop-variant', 'd-none d-lg-block', [
       section('in-care-desktop', [
-        group('in-care-desktop-columns', 'row g-4 g-lg-5 align-items-center', [
+        group('in-care-desktop-columns', 'row g-3 align-items-center', [
           col('in-care-desktop-information-column', 'col-4', [
             stack('in-care-desktop-information-parent', [
               copy('in-care-desktop-heading-parent', 'h2', "Pups In Our Care", '6520:47386', 'section-heading'),
@@ -208,11 +175,7 @@ export function Home() {
             stack('in-care-desktop-collection-group', [
               // A single carousel parent: no individual card placeholders.
               host('featured-dogs-desktop-carousel-parent', 'collection', 300),
-              group('featured-dogs-desktop-controls-row', 'row g-0 justify-content-end', [
-                col('featured-dogs-desktop-controls-column', 'col-4', [
-                  host('featured-dogs-desktop-controls-parent', 'compact', 400),
-                ]),
-              ]),
+
             ]),
           ]),
         ]),
@@ -233,17 +196,17 @@ export function Home() {
               host('adopt-desktop-assets-parent', 'media', 300, 'w-75 ms-auto adopt-desktop-media-size'),
               group('adopt-desktop-information-parent', 'position-absolute top-0 start-0 w-50', [
                 copy('adopt-desktop-copy-parent', 'p', "CLAW Virtual Adoption is a digital campaign created to help dogs in need while giving people a meaningful way to make a difference. We understand that not everyone is able to physically adopt a dog, but that doesn’t mean they can’t be part of a dog’s journey.", '6207:29939', 'body-copy'),
-              ]),
-              group('adopt-desktop-action-group', 'position-absolute bottom-0 end-0 w-50', [
-                host('adopt-desktop-actions-parent', 'compact', 400),
+                group('adopt-desktop-action-group', 'd-flex justify-content-end', [
+                  host('adopt-desktop-actions-parent', 'compact', 400),
+                ]),
               ]),
             ]),
           ]),
         ]),
       ])], 50, '6227:32871'),
     ]),
-    section('donation', [group('donation-columns', 'row g-4 g-lg-5 align-items-lg-center', [
-      col('donation-information-column', 'col-12 col-lg-5', [stack('donation-information-group', [copy('donation-heading-parent', 'h2', "Make a Donation. Make a Difference.", '6222:32250', 'section-heading'), stack('donation-copy-parent', [copy('donation-introduction', 'p', 'Every contribution, big or small, helps CLAW continue caring for animals while they wait for their forever homes.', '2844:2878', 'body-copy'), copy('donation-support', 'p', 'Your support helps provide food, shelter, veterinary care and love to dogs in need.', '6222:32248', 'body-copy')], 'host-copy surface-300')])]),
+    section('donation', [group('donation-columns', 'row g-3 align-items-lg-center', [
+      col('donation-information-column', 'col-12 col-lg-5', [stack('donation-information-group', [copy('donation-heading-parent', 'h2', "Make a Donation. Make a Difference.", '6222:32250', 'section-heading'), stack('donation-copy-parent', [copy('donation-introduction', 'p', 'Every contribution, big or small, helps CLAW continue caring for animals while they wait for their forever homes.', '2844:2878', 'body-copy fw-semibold'), copy('donation-support', 'p', 'Your support helps provide food, shelter, veterinary care and love to dogs in need.', '6222:32248', 'body-copy')], 'host-copy surface-300')])]),
       col('donation-form-column', 'col-12 col-lg-7', [host('donation-form-parent', 'form', 300)]),
     ])]),
   ]);
@@ -253,18 +216,10 @@ export function Dogs() {
   return page('dogs', [
     section('dogs-hero', [row('dogs-hero-columns', [
       col('dogs-heading-column', 'col-12 col-lg-6', [intro('dogs')]),
+      h('div', { 'aria-hidden': true, className: 'dogs-header-overlay' }),
       col('dogs-visual-column', 'col-12 col-lg-6', [host('dogs-hero-assets-parent', 'media', 300)]),
     ])], 100, '6402:43371 / 2844:2901'),
-    section('dog-listing', [row('listing-columns', [
-      col('filter-column', 'col-12 col-lg-3', [host('mobile-filter-controls-parent', 'compact', 400, 'd-lg-none'),
-        stack('desktop-filter-groups', [host('filter-heading-parent', 'compact', 300), host('availability-filter-parent', 'compact'),
-          host('age-filter-parent', 'copy'), host('size-filter-parent', 'copy'), host('sex-filter-parent', 'copy'),
-          host('filter-actions-parent', 'compact', 400)], 'd-none d-lg-flex')]),
-      col('results-column', 'col-12 col-lg-9', [stack('results-groups', [row('results-toolbar', [
-        col('results-summary-column', 'col-12 d-lg-none', [host('result-summary-parent', 'compact')]),
-        col('search-column', 'd-none d-lg-block col-lg-7 offset-lg-5', [host('search-parent', 'compact', 300)]),
-      ]), host('dog-card-collection-parent', 'collection', 300)])]),
-    ])], 50),
+    section('dog-listing', [h(DogListing)], 50),
   ], true);
 }
 
@@ -278,7 +233,7 @@ export function DogDetails() {
 function informationPage(name, groups, source) {
   // Reference information pages use a reading layout and copyright footer.
   return group(name, '', [group(`${name}-main`, 'surface-50 py-4 py-lg-5', [
-    group(`${name}-container`, 'container-fluid reading-width px-3 px-lg-5', [stack(`${name}-reading-groups`, [host(`${name}-heading-parent`, 'heading', 300), ...groups.map(label => host(`${name}-${label}-parent`, 'copy'))])]),
+    group(`${name}-container`, 'container-fluid reading-width px-3 px-lg-5', [stack(`${name}-reading-groups`, [host(`${name}-heading-parent`, 'heading', 300), ...groups.map(label => host(`${name}-${label}-parent`, 'copy'))], 'gap-4')]),
   ], 'main', source), group(`${name}-footer`, 'surface-300', [host('copyright-parent', 'copyright', 300)], 'footer')]);
 }
 export function VirtualAdoption() {
