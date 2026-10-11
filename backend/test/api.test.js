@@ -1,0 +1,33 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createApp } from '../src/app.js';
+import { seedDogs } from '../src/seed.js';
+// API tests use a repository double; the optional separate suite checks MySQL itself.
+function repository() {
+ const users=[],sessions=[],contributions=[];
+ return {users,sessions,contributions,prepare(sql){return {
+ async get(...args){
+  if(sql==='SELECT 1 AS ok')return {ok:1};
+  if(sql.includes('FROM dogs WHERE')){const dog=seedDogs.find(d=>d.id===args[0]);return dog?{data:dog}:undefined;}
+  if(sql.includes('JOIN users')){const session=sessions.find(s=>s.token===args[0] && s.expires>args[1]);return users.find(u=>u.id===session?.userId);}
+  if(sql.includes('FROM users WHERE'))return users.find(u=>u.email===args[0] && u.username===args[1]);
+  throw new Error(`Unexpected SQL: ${sql}`);
+ },async all(...args){if(sql.includes('FROM dogs'))return seedDogs.map(data=>({data}));if(sql.includes('FROM contributions'))return contributions.filter(c=>c.user_id===args[0]);throw new Error(sql);},
+ async run(...args){
+  if(sql.startsWith('INSERT INTO users')){if(users.some(u=>u.username===args[1]||u.email===args[2]))throw Object.assign(new Error('Duplicate'),{code:'ER_DUP_ENTRY'});users.push({id:args[0],username:args[1],email:args[2],password_hash:args[3]});}
+  else if(sql.startsWith('INSERT INTO sessions'))sessions.push({token:args[0],userId:args[1],expires:args[2]});
+  else if(sql.startsWith('DELETE FROM sessions')){for(let i=sessions.length-1;i>=0;i--)if(sql.includes('token_hash')?sessions[i].token===args[0]:sessions[i].expires<args[0])sessions.splice(i,1);}
+  else if(sql.startsWith('INSERT INTO contributions'))contributions.push({id:args[0],user_id:args[1],dog_id:args[2],amount_cents:args[3],status:args[9],ends_at:args[11]});
+  else throw new Error(sql);
+ },};}};
+}
+async function fixture(t){const db=repository();const server=createApp(db).listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));t.after(()=>new Promise(resolve=>server.close(resolve)));const base=`http://127.0.0.1:${server.address().port}`;return {db,request:(path,body,cookie)=>fetch(base+'/api'+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',...(cookie?{Cookie:cookie}:{})},...(body?{body:JSON.stringify(body)}:{})})};}
+test('dog data, filters, unknown IDs and invalid requests',async t=>{
+ const {request}=await fixture(t);
+ const dogs=(await (await request('/dogs')).json()).dogs;assert.equal(dogs.length,10);assert.ok(dogs.every(d=>d.placementStatus==='in_care'));
+ const available=(await (await request('/dogs?available=true')).json()).dogs;assert.equal(available.length,7);assert.ok(available.every(d=>d.available));
+ assert.equal((await request('/dogs/bella')).status,200);
+ assert.equal((await (await request('/dogs/bella')).json()).dog.sponsorshipStatus,'active');
+ assert.equal((await request('/dogs/missing')).status,404);
+ assert.equal((await request('/health')).status,200);
+});

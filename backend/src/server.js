@@ -1,16 +1,7 @@
-import express from 'express';
-
-// Only the API foundation is prepared. Database work comes in phase 3.
-const app = express();
-const port = Number(process.env.PORT || 5001);
-
-app.disable('x-powered-by');
-app.use(express.json());
-
-app.get('/api/health', (_request, response) => {
-  response.json({ status: 'ok', service: 'claw-backend' });
-});
-
-app.listen(port, '127.0.0.1', () => {
-  console.log(`CLAW backend: http://localhost:${port}`);
-});
+import { createApp } from './app.js';
+import { openDatabase } from './database.js';
+const db=await openDatabase();
+try {await db.prepare('SELECT id FROM dogs LIMIT 1').get();}
+catch(error){await db.close();console.error('Unable to open the CLAW MySQL database. Check backend/.env and run npm run db:setup.',error.code);process.exit(1);}
+const server=createApp(db).listen(Number(process.env.PORT||5001),'127.0.0.1',()=>console.log(`CLAW backend: http://localhost:${process.env.PORT||5001}`));
+for(const signal of ['SIGINT','SIGTERM']) process.on(signal,()=>server.close(async ()=>{await db.close();process.exit(0);}));
