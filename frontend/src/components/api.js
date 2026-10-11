@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
-import { dogs } from './mock-dogs.js';
-// UI preview data until the user-facing API is connected.
-export async function api(path, options = {}) {
- if (path === '/auth/me') return {user: null};
- if (path.startsWith('/dogs/')) {
-  const dog = dogs.find(dog => dog.id === decodeURIComponent(path.slice(6)));
-  if (!dog) throw new Error('Dog not found.');
-  return {dog};
- }
- if (path.startsWith('/dogs')) return {dogs: path.includes('available=true') ? dogs.filter(dog => dog.available) : dogs};
- throw new Error('This preview is not connected to the backend yet.');
+export async function api(path,options={}) {
+ let response;
+ try { response=await fetch(`/api${path}`,{credentials:'same-origin',...options,headers:{'Content-Type':'application/json',...options.headers}}); }
+ catch {throw new Error('Unable to reach CLAW. Please try again.');}
+ if(response.status===204)return null;
+ const isJson=response.headers.get('content-type')?.includes('application/json');
+ if(!isJson)throw new Error('The CLAW API is unavailable. Please restart the frontend server and check that the backend is running.');
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok)throw new Error(data.error||'Unable to complete this request. Please try again.');
+ return data;
 }
 export function useApi(path) {
  const [state,setState]=useState({data:null,error:'',loading:true});
