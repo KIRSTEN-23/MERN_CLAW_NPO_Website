@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { updateSeo } from './components/seo.js';
 import { AuthPage } from "./components/auth-form.js";
 import {
   Home,
@@ -28,6 +29,7 @@ const pages = {
 
 export default function App() {
   const [route, setRoute] = useState(readLocation);
+  useEffect(() => updateSeo(route), [route]);
   useEffect(() => {
     const update = () => setRoute(readLocation());
     window.addEventListener("hashchange", update);
