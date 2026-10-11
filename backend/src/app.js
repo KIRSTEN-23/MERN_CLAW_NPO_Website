@@ -69,6 +69,16 @@ export function createApp(db) {
   const token=req.headers.cookie?.split(';').map(x=>x.trim()).find(x=>x.startsWith('claw_session='))?.slice(13);
   if(token) await db.prepare('DELETE FROM sessions WHERE token_hash=?').run(hash(token));cookie(res,'',0);res.status(204).end();
  });
+ app.post('/api/contributions',async (req,res)=>{
+  const {amount,frequency,paymentMethod,name,email,phone='',dogId}=req.body||{};
+  if(typeof amount!=='string' || !/^\d{1,7}(\.\d{1,2})?$/.test(amount) || Number(amount)<1 || !['once','monthly'].includes(frequency) || !['eft','payfast'].includes(paymentMethod) || typeof name!=='string' || !name.trim() || name.length>120 || !emailValid(email) || typeof phone!=='string' || phone.length>40) return fail(res,400,'Enter a valid amount, frequency, payment method and contact details.');
+  if(dogId){const row=await db.prepare('SELECT data FROM dogs WHERE id=?').get(String(dogId));if(!row) return fail(res,404,'Dog not found.');if(!dogStatus(typeof row.data==='string'?JSON.parse(row.data):row.data).available) return fail(res,409,'This dog is no longer available for virtual adoption.');if(frequency!=='monthly') return fail(res,400,'Virtual adoption requires monthly support.');}
+  const id=randomUUID(),createdAt=new Date().toISOString();let endsAt=null;
+  // The six-month adoption period starts only after payment confirmation.
+  await db.prepare('INSERT INTO contributions VALUES (?,?,?,?,?,?,?,?,?,?,?,?)').run(id,(await session(req))?.id||null,dogId||null,Math.round(Number(amount)*100),frequency,paymentMethod,name.trim(),email.toLowerCase(),phone,'pending_payment',createdAt,endsAt);
+  res.status(201).json({contribution:{id,status:'pending_payment',createdAt,endsAt},message:'Your contribution request was saved. No payment has been taken; virtual adoption begins after payment is confirmed.'});
+ });
+ app.get('/api/contributions',async (req,res)=>{const user=await session(req);if(!user)return fail(res,401,'Log in to view your contributions.');res.json({contributions:await db.prepare('SELECT id,dog_id,amount_cents,frequency,status,created_at,ends_at FROM contributions WHERE user_id=? ORDER BY created_at DESC').all(user.id)});});
  app.use('/api',(_req,res)=>fail(res,404,'Endpoint not found.'));
  app.use((error,_req,res,_next)=>{if(error.type==='entity.parse.failed')return fail(res,400,'Invalid JSON.');if(error.type==='entity.too.large')return fail(res,413,'Request too large.');console.error(error);fail(res,500,'Unable to complete this request.');});
  return app;

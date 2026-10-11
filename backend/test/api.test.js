@@ -22,7 +22,7 @@ function repository() {
  },};}};
 }
 async function fixture(t){const db=repository();const server=createApp(db).listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));t.after(()=>new Promise(resolve=>server.close(resolve)));const base=`http://127.0.0.1:${server.address().port}`;return {db,request:(path,body,cookie)=>fetch(base+'/api'+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',...(cookie?{Cookie:cookie}:{})},...(body?{body:JSON.stringify(body)}:{})})};}
-test('registration, private session, logout and login',async t=>{
+test('registration, private session, pending adoption, logout and login',async t=>{
  const {db,request}=await fixture(t);
  const details={username:'demo.user',email:'demo@example.com',password:'strong-password',confirmPassword:'strong-password'};
  const registration=await request('/auth/register',details);assert.equal(registration.status,201);
@@ -31,6 +31,10 @@ test('registration, private session, logout and login',async t=>{
  assert.equal((await (await request('/auth/me',null,cookie)).json()).user.email,details.email);
  assert.equal((await request('/auth/register',details)).status,409);
  assert.equal((await request('/auth/login',{...details,password:'wrong'})).status,401);
+ const contribution=await request('/contributions',{amount:'250.50',frequency:'monthly',paymentMethod:'eft',name:'Demo User',email:details.email,dogId:'max'},cookie);
+ assert.equal(contribution.status,201);assert.equal(db.contributions[0].amount_cents,25050);assert.equal(db.contributions[0].status,'pending_payment');assert.equal(db.contributions[0].ends_at,null);
+ assert.equal((await (await request('/contributions',null,cookie)).json()).contributions.length,1);
+ assert.equal((await request('/contributions')).status,401);
  assert.equal((await request('/auth/logout',{},cookie)).status,204);
  assert.equal((await (await request('/auth/me',null,cookie)).json()).user,null);
  assert.equal((await request('/auth/login',details)).status,200);
@@ -43,5 +47,9 @@ test('dog data, filters, unknown IDs and invalid requests',async t=>{
  assert.equal((await (await request('/dogs/bella')).json()).dog.sponsorshipStatus,'active');
  assert.equal((await request('/dogs/missing')).status,404);
  assert.equal((await request('/auth/register',{username:'bad',email:'invalid',password:'a'})).status,400);
+ const valid={amount:'250',frequency:'monthly',paymentMethod:'eft',name:'Demo',email:'demo@example.com'};
+ for(const amount of ['0','-1','1.001','NaN'])assert.equal((await request('/contributions',{...valid,amount})).status,400);
+ assert.equal((await request('/contributions',{...valid,dogId:'bella'})).status,409);
+ assert.equal((await request('/contributions',{...valid,dogId:'max',frequency:'once'})).status,400);
  assert.equal((await request('/health')).status,200);
 });
