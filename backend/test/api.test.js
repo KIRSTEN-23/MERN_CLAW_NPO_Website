@@ -22,6 +22,19 @@ function repository() {
  },};}};
 }
 async function fixture(t){const db=repository();const server=createApp(db).listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));t.after(()=>new Promise(resolve=>server.close(resolve)));const base=`http://127.0.0.1:${server.address().port}`;return {db,request:(path,body,cookie)=>fetch(base+'/api'+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',...(cookie?{Cookie:cookie}:{})},...(body?{body:JSON.stringify(body)}:{})})};}
+test('registration, private session, logout and login',async t=>{
+ const {db,request}=await fixture(t);
+ const details={username:'demo.user',email:'demo@example.com',password:'strong-password',confirmPassword:'strong-password'};
+ const registration=await request('/auth/register',details);assert.equal(registration.status,201);
+ const cookie=registration.headers.get('set-cookie').split(';')[0];assert.match(registration.headers.get('set-cookie'),/HttpOnly/);
+ assert.equal((await registration.json()).user.username,details.username);assert.notEqual(db.users[0].password_hash,details.password);
+ assert.equal((await (await request('/auth/me',null,cookie)).json()).user.email,details.email);
+ assert.equal((await request('/auth/register',details)).status,409);
+ assert.equal((await request('/auth/login',{...details,password:'wrong'})).status,401);
+ assert.equal((await request('/auth/logout',{},cookie)).status,204);
+ assert.equal((await (await request('/auth/me',null,cookie)).json()).user,null);
+ assert.equal((await request('/auth/login',details)).status,200);
+});
 test('dog data, filters, unknown IDs and invalid requests',async t=>{
  const {request}=await fixture(t);
  const dogs=(await (await request('/dogs')).json()).dogs;assert.equal(dogs.length,10);assert.ok(dogs.every(d=>d.placementStatus==='in_care'));
@@ -29,5 +42,6 @@ test('dog data, filters, unknown IDs and invalid requests',async t=>{
  assert.equal((await request('/dogs/bella')).status,200);
  assert.equal((await (await request('/dogs/bella')).json()).dog.sponsorshipStatus,'active');
  assert.equal((await request('/dogs/missing')).status,404);
+ assert.equal((await request('/auth/register',{username:'bad',email:'invalid',password:'a'})).status,400);
  assert.equal((await request('/health')).status,200);
 });
