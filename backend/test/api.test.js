@@ -21,7 +21,7 @@ function repository() {
   else throw new Error(sql);
  },};}};
 }
-async function fixture(t){const db=repository();const server=createApp(db).listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));t.after(()=>new Promise(resolve=>server.close(resolve)));const base=`http://127.0.0.1:${server.address().port}`;return {db,request:(path,body,cookie)=>fetch(base+'/api'+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',...(cookie?{Cookie:cookie}:{})},...(body?{body:JSON.stringify(body)}:{})})};}
+async function fixture(t, options){const db=repository();const server=createApp(db, options).listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));t.after(()=>new Promise(resolve=>server.close(resolve)));const base=`http://127.0.0.1:${server.address().port}`;return {db,request:(path,body,cookie,origin)=>fetch(base+'/api'+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',...(cookie?{Cookie:cookie}:{}),...(origin?{Origin:origin}:{})},...(body?{body:JSON.stringify(body)}:{})})};}
 test('registration, private session, pending adoption, logout and login',async t=>{
  const {db,request}=await fixture(t);
  const details={username:'demo.user',email:'demo@example.com',password:'strong-password',confirmPassword:'strong-password'};
@@ -52,4 +52,17 @@ test('dog data, filters, unknown IDs and invalid requests',async t=>{
  assert.equal((await request('/contributions',{...valid,dogId:'bella'})).status,409);
  assert.equal((await request('/contributions',{...valid,dogId:'max',frequency:'once'})).status,400);
  assert.equal((await request('/health')).status,200);
+});
+
+test('production keeps secure private cookies and rejects foreign origins', async t => {
+ const {request}=await fixture(t,{production:true,trustProxyHops:'1'});
+ const details={username:'production.test',email:'production@example.com',password:'test-password',confirmPassword:'test-password'};
+ const response=await request('/auth/register',details);
+ assert.equal(response.status,201);
+ const cookie=response.headers.get('set-cookie');
+ assert.match(cookie,/HttpOnly/);assert.match(cookie,/SameSite=Lax/);assert.match(cookie,/Secure/);assert.match(cookie,/Path=\/api/);
+ assert.equal((await request('/auth/login',details,null,'https://untrusted.example')).status,403);
+ assert.equal((await request('/auth/login',details,null,process.env.APP_ORIGIN || 'http://localhost:5173')).status,200);
+ const sessionCookie=cookie.split(';')[0];
+ assert.equal((await (await request('/auth/me',null,sessionCookie)).json()).user.username,details.username);
 });

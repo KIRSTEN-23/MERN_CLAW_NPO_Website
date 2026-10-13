@@ -7,13 +7,15 @@
     "dev": "node --env-file-if-exists=.env --watch src/server.js",
     "start": "node --env-file-if-exists=.env src/server.js",
     "db:setup": "node --env-file-if-exists=.env src/migrate.js",
-    "test": "node --env-file-if-exists=.env --test"
+    "test": "node --env-file-if-exists=.env --test",
+    "db:schema": "node --env-file-if-exists=.env src/migrate.js --schema-only",
+    "db:seed": "node --env-file-if-exists=.env src/seed-database.js"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.10.0"
   },
   "dependencies": {
     "express": "^5.1.0",
-    "mysql2": "^3.15.3"
+    "mysql2": "^3.24.5"
   }
 }

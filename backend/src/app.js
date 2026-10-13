@@ -1,16 +1,21 @@
 import { dogStatus } from './dog-status.js';
 import express from 'express';
+import { serveFrontend } from './frontend-serving.js';
 import { randomBytes, randomUUID, scrypt, timingSafeEqual, createHash } from 'node:crypto';
 import { promisify } from 'node:util';
 const derive=promisify(scrypt);
 const hash = value => createHash('sha256').update(value).digest('hex');
 const emailValid = value => typeof value==='string' && value.length<=254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 const publicUser = row => ({id:row.id,username:row.username,email:row.email});
-export function createApp(db) {
- const app=express(); app.disable('x-powered-by'); app.use(express.json({limit:'16kb'}));
+export function createApp(db, {production = process.env.NODE_ENV === 'production', trustProxyHops = process.env.TRUST_PROXY_HOPS || '0'} = {}) {
+ if (!['0', '1'].includes(String(trustProxyHops))) throw new Error('TRUST_PROXY_HOPS must be 0 or 1.');
+ const app=express();
+ // Only the immediate App Service ingress hop; never trust arbitrary forwarded chains.
+ app.set('trust proxy', Number(trustProxyHops) === 1 ? (_ip, hop) => hop === 0 : false);
+ app.disable('x-powered-by'); app.use(express.json({limit:'16kb'}));
  app.use('/api',(_req,res,next)=>{res.set('Cache-Control','no-store');next();});
  const fail=(res,status,message)=>res.status(status).json({error:message});
- const cookie=(res,token,maxAge)=>res.set('Set-Cookie',`claw_session=${token}; HttpOnly; SameSite=Lax; Path=/api; Max-Age=${maxAge}${process.env.NODE_ENV==='production'?'; Secure':''}`);
+ const cookie=(res,token,maxAge)=>res.set('Set-Cookie',`claw_session=${token}; HttpOnly; SameSite=Lax; Path=/api; Max-Age=${maxAge}${production?'; Secure':''}`);
  const session=async req=>{
   const token=req.headers.cookie?.split(';').map(x=>x.trim()).find(x=>x.startsWith('claw_session='))?.slice(13);
   return token && await db.prepare('SELECT users.* FROM sessions JOIN users ON users.id=sessions.user_id WHERE token_hash=? AND expires_at>?').get(hash(token),Date.now());
@@ -80,6 +85,7 @@ export function createApp(db) {
  });
  app.get('/api/contributions',async (req,res)=>{const user=await session(req);if(!user)return fail(res,401,'Log in to view your contributions.');res.json({contributions:await db.prepare('SELECT id,dog_id,amount_cents,frequency,status,created_at,ends_at FROM contributions WHERE user_id=? ORDER BY created_at DESC').all(user.id)});});
  app.use('/api',(_req,res)=>fail(res,404,'Endpoint not found.'));
- app.use((error,_req,res,_next)=>{if(error.type==='entity.parse.failed')return fail(res,400,'Invalid JSON.');if(error.type==='entity.too.large')return fail(res,413,'Request too large.');console.error(error);fail(res,500,'Unable to complete this request.');});
+ if (production) serveFrontend(app);
+ app.use((error,_req,res,_next)=>{if(error.type==='entity.parse.failed')return fail(res,400,'Invalid JSON.');if(error.type==='entity.too.large')return fail(res,413,'Request too large.');console.error('API request failed; check database connectivity and schema.', /^[A-Z][A-Z0-9_]{0,63}$/.test(error.code || '') ? error.code : 'INTERNAL_ERROR');fail(res,500,'Unable to complete this request.');});
  return app;
 }

@@ -1,0 +1,21 @@
+{
+  "name": "claw-azure-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.10.0"
+  },
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "test": "node --test backend/test/*.test.js",
+    "db:schema": "node backend/src/migrate.js --schema-only",
+    "db:seed": "node backend/src/seed-database.js",
+    "db:setup": "node backend/src/migrate.js",
+    "check:deployment": "node scripts/check-deployment.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "mysql2": "^3.24.5"
+  }
+}

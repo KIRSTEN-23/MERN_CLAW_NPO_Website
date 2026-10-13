@@ -8,3 +8,7 @@ node_modules/
 # Local setup and layout notes (excluded from commit history).
 /CLAW_SETUP.md
 /frontend/LAYOUT_DRAFT.md
+
+# macOS resource forks and archive metadata
+._*
+__MACOSX/

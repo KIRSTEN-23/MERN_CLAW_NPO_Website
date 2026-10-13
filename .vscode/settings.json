@@ -1,0 +1,15 @@
+{
+  "appService.deploySubpath": ".",
+  "appService.zipIgnorePattern": [
+    "**/node_modules/**",
+    "**/.env",
+    "**/.env.*",
+    "**/.DS_Store",
+    "**/._*",
+    "**/__MACOSX/**",
+    ".git/**",
+    "**/*.log",
+    "CLAW Website Link Inventory.md"
+  ],
+  "appService.defaultWebAppToDeploy": "/subscriptions/973c9ef6-13f3-4a98-8a73-974ea22f0063/resourceGroups/claw-demo-rg/providers/Microsoft.Web/sites/claw-web-kv-2026"
+}

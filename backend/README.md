@@ -47,3 +47,7 @@ Public dog listings and detail pages expose dogs in care, including already spon
 Dog records distinguish `permanentAdoptionDate` (permanent placement), `sponsorshipStartedAt`, and `sponsorshipEndsAt` (virtual support). Expired sponsorship releases an in-care dog for public browsing. Legacy mock adoption dates are interpreted as sponsorship starts; existing stored records are normalized on read without destructive database changes.
 
 Future work: payment confirmation must atomically claim a dog and set sponsorship dates, preventing duplicate active sponsors. Add an account sponsorship view and permanent-placement notifications. Permanent placement should end scheduled sponsorship payments; disclose this before checkout. After the sponsor acknowledges the placement notification, archive the profile from their active view seven days later, preserving contribution and sponsorship history. Until these features exist, permanently placed profiles are hidden immediately. No reservation or waitlist is offered.
+
+## Azure production hosting
+
+See [DEPLOYMENT_AZURE.md](../DEPLOYMENT_AZURE.md) for repository-root installation/startup, verified MySQL TLS and restricted networking. Production serves the existing frontend from the backend; local frontend/backend commands stay separate. Use `db:schema` and optional `db:seed` for explicit setup. Startup never migrates or seeds.
