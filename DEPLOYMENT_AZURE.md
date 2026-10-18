@@ -79,3 +79,11 @@ npm run dev
 In a second terminal, from the repository root: `npm --prefix frontend run dev`. No frontend dependency installation is needed. Use `http://localhost:5173` with `APP_ORIGIN=http://localhost:5173`; local MySQL can use `MYSQL_SSL=false` and `TRUST_PROXY_HOPS=0`.
 
 From the root run `npm test` and `npm run check:deployment`. API tests use mock repositories. The optional real-MySQL suite is skipped unless `MYSQL_INTEGRATION=1` is explicitly set and `MYSQL_DATABASE` ends in `_test`; configure only a dedicated disposable test database. Production startup/static serving is tested without MySQL credentials or Azure resources. Live Azure network/TLS, account/region availability and browser authentication must still be verified after authorized setup and deployment.
+
+## Analytics and indexing configuration
+
+Set `GA_MEASUREMENT_ID` to the public GA4 web-stream ID (G-...). Only this allowlisted public ID is returned by `/api/public-config`; no credentials are exposed. Leave it empty in development/staging. Set `GOOGLE_SITE_VERIFICATION` to Search Console’s HTML-tag token; Express includes it in the initial homepage HTML. Set `APP_ORIGIN` to the deployed origin so canonical/social URLs, robots.txt and sitemap.xml match it.
+
+Analytics loads only after opt-in. Turn off Enhanced measurement for this stream: explicit hash-route page views and successful `sign_up` / `demo_contribution_request` events are used instead. The latter is a student-demo event, never a purchase or confirmed payment. Do not add a second tag or automatic page-view hook. Keep the verification token in Azure after ownership succeeds.
+
+The sitemap lists the homepage only because the current hash routes are not separately indexable URLs. Do not add fragment URLs or invent database-detail pathnames. See `reports/seo/SEO_REPORT.md` for measured evidence and remaining external steps.

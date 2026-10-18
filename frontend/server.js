@@ -1,3 +1,4 @@
+// Local development server: serve browser modules/assets and proxy API requests to the separate Express backend. Production uses Express instead.
 import { createServer, request as httpRequest } from "node:http";
 import { readFile } from "node:fs/promises";
 import { dirname, extname, resolve, sep } from "node:path";

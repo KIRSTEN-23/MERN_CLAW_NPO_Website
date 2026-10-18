@@ -1,3 +1,4 @@
+// Reusable Bootstrap controls and dog media. Native props pass through so callers retain accessibility, validation and event behavior.
 import React from 'react';
 const h = React.createElement;
 const classes = (...values) => values.filter(Boolean).join(' ');

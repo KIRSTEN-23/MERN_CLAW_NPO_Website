@@ -1,0 +1,28 @@
+{
+  "/api/health": {
+    "status": 200,
+    "type": "application/json; charset=utf-8",
+    "body": "{\"status\":\"ok\",\"service\":\"claw-backend\",\"database\":\"mysql\"}"
+  },
+  "/api/public-config": {
+    "status": 200,
+    "type": "application/json; charset=utf-8",
+    "body": "{\"gaMeasurementId\":\"G-GV1EHLBMZV\"}"
+  },
+  "/": {
+    "status": 200,
+    "type": "text/html; charset=utf-8",
+    "verification": true,
+    "canonical": true
+  },
+  "/robots.txt": {
+    "status": 200,
+    "type": "text/plain; charset=utf-8",
+    "body": "User-agent: *\nDisallow: /api/\nSitemap: https://clawvirtualadoption.azurewebsites.net/sitemap.xml\n"
+  },
+  "/sitemap.xml": {
+    "status": 200,
+    "type": "application/xml; charset=utf-8",
+    "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"><url><loc>https://clawvirtualadoption.azurewebsites.net/</loc></url></urlset>"
+  }
+}

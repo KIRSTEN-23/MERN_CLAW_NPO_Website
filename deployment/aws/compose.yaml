@@ -1,0 +1,68 @@
+# Secrets are generated on the server and supplied through its root-only .env.
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?required}
+      MYSQL_DATABASE: claw
+      MYSQL_USER: claw_app
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?required}
+    command:
+      - --require-secure-transport=ON
+      - --ssl-ca=/etc/mysql/tls/ca.pem
+      - --ssl-cert=/etc/mysql/tls/server.pem
+      - --ssl-key=/etc/mysql/tls/server-key.pem
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./tls:/etc/mysql/tls:ro
+    healthcheck:
+      test: [CMD, mysqladmin, ping, --silent]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    # No published port: MySQL is reachable only on the private Docker network.
+  web:
+    build:
+      context: ./app
+      dockerfile: deployment/aws/Dockerfile
+    restart: unless-stopped
+    init: true
+    environment:
+      NODE_ENV: production
+      PORT: 5001
+      APP_ORIGIN: ${APP_ORIGIN:?required}
+      TRUST_PROXY_HOPS: 0
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: claw
+      MYSQL_USER: claw_app
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?required}
+      MYSQL_SSL: 'true'
+      MYSQL_SSL_CA: /run/mysql-ca.pem
+      # Keep assessment-copy traffic separate from the Azure campaign analytics.
+      GA_MEASUREMENT_ID: ''
+      GOOGLE_SITE_VERIFICATION: ''
+    volumes:
+      - ./tls/ca.pem:/run/mysql-ca.pem:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+  https:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?required}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - web
+volumes:
+  mysql-data:
+  caddy-data:
+  caddy-config:

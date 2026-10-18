@@ -1,3 +1,4 @@
+// Shared public-site features: navigation, dog cards, carousel, filters, donation form and dog status presentation.
 import { StudentProjectNotice } from './student-project-notice.js';
 import { Button, Badge, Input, Select } from './ui.js';
 import React, { useEffect, useLayoutEffect, useId, useRef, useState } from "react";
@@ -167,6 +168,7 @@ export function Navigation({ transparent = false } = {}) {
 }
 // All listings and featured cards use this template; active only changes its colour plane.
 export function DogCard(props) { return h(CareDogCard, props); }
+// Listing and carousel share this card. The active flag changes appearance, not its data.
 export function CareDogCard({ dog, active = false }) {
   return h(
     "article",
@@ -228,6 +230,7 @@ export function CareDogCard({ dog, active = false }) {
     ),
   );
 }
+// Measure the carousel so changing selection preserves the surrounding section height.
 export function FeaturedDogs({ mobile = false }) {
   const [index, setIndex] = useState(0);
   const [offset, setOffset] = useState(0);
@@ -307,6 +310,7 @@ export function FeaturedDogs({ mobile = false }) {
         }
       },
       onTouchStart: event => { const point = event.touches[0]; touch.current = { x: point.clientX, y: point.clientY }; },
+      onTouchCancel: () => { touch.current = null; },
       onTouchEnd: event => {
         const start = touch.current; touch.current = null;
         if (!start) return;
@@ -319,7 +323,15 @@ export function FeaturedDogs({ mobile = false }) {
       ? h(
           "div",
           { className: "care-mobile-stack mx-auto" },
-          h(DogCard, { dog: featured[current], active: true }),
+          // Keep every slide in the same grid cell: the tallest card reserves
+          // space, while transforms animate without moving the section below.
+          ...featured.map((dog, position) => h("div", {
+            key: dog.id,
+            className: `care-mobile-slide${position === current ? " is-active" : ""}`,
+            style: { "--care-direction": position < current ? -1 : 1 },
+            "aria-hidden": position !== current,
+            inert: position !== current ? true : undefined,
+          }, h(DogCard, { dog, active: true }))),
         )
       : h(
           "div",
@@ -377,6 +389,7 @@ export function FeaturedDogs({ mobile = false }) {
     h('p', { className: 'visually-hidden', 'aria-live': 'polite', 'aria-atomic': true }, `${current + 1} of ${featured.length}: ${featured[current].name}`),
   );
 }
+// Keep checkbox drafts separate from applied filters until the visitor clicks Apply.
 export function DogListing() {
   const {data,error,loading,retry}=useApi('/dogs');
   const dogs=data?.dogs || [];
@@ -519,6 +532,7 @@ const paymentMethods = [
   ["payfast", "Payfast", null],
 ];
 
+// Custom payment selector: retain keyboard focus management and a hidden native validation control.
 function PaymentDropdown({ id, validated, onChange }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
@@ -537,6 +551,7 @@ function PaymentDropdown({ id, validated, onChange }) {
     requestAnimationFrame(() => {
       wrapper.current?.querySelectorAll('[role="option"]')[index]?.focus();
     });
+  // Update the selected method, close the menu and return focus to its trigger.
   const choose = (key) => {
     setValue(key);
     setOpen(false);
@@ -655,6 +670,7 @@ function PaymentDropdown({ id, validated, onChange }) {
   );
 }
 
+// Homepage donation form only validates locally. The dedicated SupportForm submits saved demo requests.
 export function DonationForm() {
   const id = useId();
   const [validated, setValidated] = useState(false);
@@ -713,6 +729,7 @@ export function DonationForm() {
       onSubmit: (event) => {
         event.preventDefault();
         const form = event.currentTarget;
+        // This homepage flow makes no API request and takes no payment. Completion here means valid input only.
         const valid = form.checkValidity();
         setValidated(true);
         setComplete(valid);
@@ -782,6 +799,7 @@ export function DogAttributes({ dog }) {
     ),
   );
 }
+// Present virtual sponsorship separately from permanent adoption.
 export function AdoptionStatus({dog}) {
  const date=value=>new Date(`${value}T00:00:00`).toLocaleDateString('en-ZA',{year:'numeric',month:'long',day:'numeric'});
  const dates=[dog.sponsorshipStartedAt ? `Sponsored since ${date(dog.sponsorshipStartedAt)}` : null, dog.intakeDate ? `In care since ${date(dog.intakeDate)}` : null].filter(Boolean);

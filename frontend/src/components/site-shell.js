@@ -1,3 +1,4 @@
+// Shared header and footer. The header responds to scroll position and page route to choose its visual state.
 import React, { useEffect, useState } from "react";
 import { Navigation } from "./public.js";
 const h = React.createElement;

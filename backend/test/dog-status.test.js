@@ -1,3 +1,4 @@
+// Availability regression tests: expired sponsorship can release an in-care dog, but permanent adoption cannot.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { dogStatus } from '../src/dog-status.js';

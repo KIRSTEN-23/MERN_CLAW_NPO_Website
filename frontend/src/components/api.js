@@ -1,3 +1,4 @@
+// Same-origin API client and loading hook. Session cookies accompany requests without exposing tokens to browser JavaScript.
 import { useEffect, useState } from 'react';
 export async function api(path,options={}) {
  let response;

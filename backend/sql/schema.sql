@@ -1,7 +1,10 @@
+-- Explicit schema setup only, never executed during normal app startup.
+-- Flexible dog profiles stored as JSON with stable IDs used by the public API.
 CREATE TABLE IF NOT EXISTS dogs (
  id VARCHAR(40) PRIMARY KEY,
  data JSON NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- Unique account identities and salted password hashes. No plaintext passwords.
 CREATE TABLE IF NOT EXISTS users (
  id CHAR(36) PRIMARY KEY,
  username VARCHAR(40) COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE,
@@ -9,6 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
  password_hash VARCHAR(180) NOT NULL,
  created_at VARCHAR(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- Only hashed session tokens are persisted. Expiry is stored as Unix milliseconds.
 CREATE TABLE IF NOT EXISTS sessions (
  token_hash CHAR(64) PRIMARY KEY,
  user_id CHAR(36) NOT NULL,
@@ -16,6 +20,7 @@ CREATE TABLE IF NOT EXISTS sessions (
  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
  INDEX (expires_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- Demo requests store money as integer cents. Pending requests do not activate sponsorship.
 CREATE TABLE IF NOT EXISTS contributions (
  id CHAR(36) PRIMARY KEY,
  user_id CHAR(36), dog_id VARCHAR(40),

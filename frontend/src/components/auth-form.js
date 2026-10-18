@@ -1,5 +1,7 @@
+// Login and registration UI with browser validation and API-backed sessions. Desktop panels switch between the two account flows.
 import { Button, Input, Field } from './ui.js';
 import React, { useEffect, useId, useState } from 'react';
+import { trackEvent } from './analytics.js';
 import { api } from './api.js';
 import { Header } from './site-shell.js';
 const h = React.createElement;
@@ -52,6 +54,7 @@ function AuthForm({ signup }) {
                 if(busy)return;
                 setBusy(true);setError('');
                 try {await api(signup ? '/auth/register' : '/auth/login',{method:'POST',body:JSON.stringify(Object.fromEntries(new FormData(form)))});
+                  if (signup) trackEvent('sign_up');
                   window.dispatchEvent(new Event('claw-auth-change'));location.hash='#/dogs';
                 } catch(error){setError(error.message);} finally{setBusy(false);}
               } },

@@ -1,3 +1,4 @@
+// Browser entry point: mount React into the HTML root using CDN import-map dependencies.
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.js";

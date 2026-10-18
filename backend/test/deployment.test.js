@@ -1,3 +1,4 @@
+// Production configuration and serving tests. Verify frontend allowlists, API errors, TLS requirements and lifecycle failures without Azure services.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';

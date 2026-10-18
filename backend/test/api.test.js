@@ -1,3 +1,4 @@
+// API behavior tests using an isolated database adapter and local HTTP server, including authentication and contribution validation.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createApp } from '../src/app.js';

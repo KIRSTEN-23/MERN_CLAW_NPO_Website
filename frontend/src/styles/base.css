@@ -319,7 +319,7 @@ body {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: url("/public/assets/home/paw-pattern.png") center top / 100% auto
+  background: url("/public/assets/home/paw-pattern.webp") center top / 100% auto
     no-repeat;
   opacity: 0.4;
 }
@@ -335,7 +335,7 @@ body {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: url("/public/assets/home/paw-pattern.png") center / cover
+  background: url("/public/assets/home/paw-pattern.webp") center / cover
     no-repeat;
   opacity: 0.4;
 }
@@ -1940,4 +1940,171 @@ body {
 }
 .claw-theme .support-period.support-period-compact {
  border-radius: var(--bs-border-radius-lg);
+}
+
+/* Mobile care waves have fixed depth, independent of the tall card stack.
+   Decorative edges extend outside the content instead of cutting into its copy. */
+@media (max-width: 61.999rem) {
+  .claw-theme .navbar-toggler {
+    border: 0;
+    padding: 0;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    font-size: 2rem;
+    line-height: 1;
+    /* Offset the icon's internal whitespace so its visible left edge
+       matches the Donate button's right inset. Keep a 44px tap target. */
+    margin-inline-start: -.375rem;
+    margin-inline-end: .375rem;
+  }
+  .claw-theme .navbar-toggler .bi { display: flex; line-height: 1; }
+  .claw-theme .navbar-toggler .bi::before { display: block; }
+  .claw-theme .navbar-toggler:focus { box-shadow: none; }
+  .claw-theme .navbar-toggler:focus-visible {
+    outline: 2px solid var(--claw-green-800);
+    outline-offset: 2px;
+    border-radius: var(--bs-border-radius-lg);
+  }
+  .claw-theme .navbar-collapse.show {
+    margin-block-start: 1rem;
+    padding: 1rem;
+    border-radius: var(--bs-border-radius-xl);
+    background: #fff;
+    box-shadow: var(--bs-box-shadow);
+  }
+  .home-navigation:has(.navbar-collapse.show)::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: rgba(0, 12, 20, .3);
+  }
+  .home-navigation:has(.navbar-collapse.show) .navbar {
+    position: relative;
+    z-index: 1;
+    background: #fff;
+  }
+  .claw-theme .navbar-collapse .nav { gap: .25rem; }
+  .claw-theme .navbar-collapse .nav-link {
+    padding: .75rem 1rem;
+    border: 0;
+    border-radius: var(--bs-border-radius-lg);
+  }
+  .claw-theme .navbar-collapse .nav-link.active {
+    background: var(--claw-green-50);
+  }
+  .claw-theme .navbar-collapse .nav-link:focus-visible {
+    outline-offset: -2px;
+  }
+  .claw-theme .navbar-collapse .nav-link:hover .nav-link-label {
+    transform: none;
+  }
+  .home-assets-page [data-layout="hero"] { padding-block-end: 0 !important; }
+  .claw-theme [data-layout="care-columns"] { margin-block-start: 0; }
+  .claw-theme :is([data-layout="mission-copy-column"], [data-layout="care-copy-column"]) {
+    margin-block-start: 1.5rem;
+  }
+  .claw-theme [data-layout="about"] { margin-block-end: 3rem; }
+
+  /* A solid section and overlapping wave ends avoid fractional-pixel seams. */
+  .claw-theme [data-layout="in-care"] {
+    padding-block-end: 3rem !important;
+    background: var(--claw-green-700);
+  }
+  .home-assets-page [data-layout="in-care"]::before,
+  .claw-theme [data-layout="in-care"]::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    block-size: calc(3rem + 1px);
+    z-index: -1;
+    opacity: 1;
+    pointer-events: none;
+    clip-path: none;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+  }
+  .home-assets-page [data-layout="in-care"]::before {
+    inset-block: auto;
+    bottom: calc(100% - 1px);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 48' preserveAspectRatio='none'%3E%3Cpath fill='%236b8a5f' d='M0 28Q40 0 100 24T210 24T320 24T400 24V48H0Z'/%3E%3C/svg%3E");
+  }
+  .claw-theme [data-layout="in-care"]::after {
+    display: none;
+  }
+  .care-mobile-bottom-wave {
+    display: block;
+    position: relative;
+    z-index: 1;
+    inline-size: 100%;
+    block-size: 3rem;
+    margin-block-start: -1px;
+    fill: var(--claw-green-700);
+    pointer-events: none;
+  }
+  [data-layout="in-care-mobile-variant"] {
+    margin-block-end: 2rem;
+  }
+  .claw-theme [data-layout="browse-actions-parent"] {
+    /* Together with the parent's 1rem gap, match the 5rem bottom space. */
+    margin-block-start: 4rem;
+  }
+  .claw-theme [data-layout="browse-actions-parent"] .btn {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: transparent;
+    --bs-btn-border-color: #fff;
+    --bs-btn-hover-color: var(--claw-green-900);
+    --bs-btn-hover-bg: #fff;
+    --bs-btn-hover-border-color: #fff;
+    --bs-btn-active-color: var(--claw-green-900);
+    --bs-btn-active-bg: #fff;
+    --bs-btn-active-border-color: #fff;
+  }
+  .care-mobile-stack {
+    display: grid;
+    touch-action: pan-y pinch-zoom;
+  }
+  .care-mobile-slide {
+    grid-area: 1 / 1;
+    min-inline-size: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(calc(var(--care-direction) * 18%)) rotate(calc(var(--care-direction) * 6deg)) scale(.94);
+    transition: transform 550ms cubic-bezier(.22, 1, .36, 1), opacity 350ms ease;
+  }
+  .care-mobile-slide.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0) rotate(0) scale(1);
+    z-index: 1;
+  }
+  .care-carousel-mobile .featured-dogs-controls { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .care-mobile-slide { transition: none; }
+}
+
+/* Keep mobile navigation on one row, including narrow 320px screens. */
+@media (max-width: 61.999rem) {
+  .claw-theme .navigation-container {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    column-gap: .5rem;
+    align-items: center;
+    margin-inline: 1rem;
+  }
+  .claw-theme .navigation-container > .navbar-brand { margin: 0; }
+  .claw-theme .navigation-actions {
+    justify-self: end;
+    margin-inline-start: 0 !important;
+    white-space: nowrap;
+    gap: .5rem !important;
+  }
+  .claw-theme .navigation-container > .navbar-collapse { grid-column: 1 / -1; }
+}
+@media (max-width: 23.999rem) {
+  .claw-theme .navigation-container { column-gap: .25rem; margin-inline: .75rem; }
+  .claw-theme .navigation-logo { max-inline-size: 4.5rem; block-size: auto; }
+  .claw-theme .navigation-actions { gap: .25rem !important; }
+  .claw-theme .navigation-actions .btn { font-size: .9375rem; padding-inline: .625rem; }
 }

@@ -9,7 +9,8 @@
     "**/__MACOSX/**",
     ".git/**",
     "**/*.log",
-    "CLAW Website Link Inventory.md"
+    "CLAW Website Link Inventory.md",
+    "reports/**"
   ],
-  "appService.defaultWebAppToDeploy": "/subscriptions/973c9ef6-13f3-4a98-8a73-974ea22f0063/resourceGroups/claw-demo-rg/providers/Microsoft.Web/sites/claw-web-kv-2026"
+  "appService.defaultWebAppToDeploy": "/subscriptions/973c9ef6-13f3-4a98-8a73-974ea22f0063/resourceGroups/claw-demo-rg/providers/Microsoft.Web/sites/clawvirtualadoption"
 }

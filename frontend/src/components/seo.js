@@ -1,3 +1,4 @@
+// Route-specific document titles, descriptions and social metadata. Hash navigation updates metadata on the client.
 const home = {
   title: 'CLAW Virtual Adoption | Support a Dog’s Journey',
   description: 'You don’t have to take them home to give them care. Meet CLAW’s dogs and explore six-month virtual adoption supporting food, shelter and veterinary care.',

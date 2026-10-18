@@ -1,0 +1,17 @@
+{
+  default_sni {$SITE_ADDRESS}
+}
+
+# Public IP certificates require Let's Encrypt's short-lived profile.
+# Caddy renews them automatically; never use an untrusted internal browser certificate.
+https://{$SITE_ADDRESS} {
+  tls {
+    issuer acme {
+      profile shortlived
+    }
+  }
+  header X-Robots-Tag "noindex, nofollow"
+  encode zstd gzip
+  # Express retains the existing API/static routing and safe JSON API errors.
+  reverse_proxy web:5001
+}

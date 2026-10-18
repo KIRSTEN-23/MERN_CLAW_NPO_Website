@@ -1,3 +1,4 @@
+// Page compositions: arrange the shared shell, copy and interactive components using Bootstrap and data-layout styling hooks.
 import { StudentProjectNotice } from '../components/student-project-notice.js';
 import { termsParagraphs } from '../components/terms-content.js';
 import { useHomeMotion } from '../components/home-motion.js';
@@ -34,7 +35,7 @@ const group = (name, classes, children = [], tag = "div", source) =>
 const componentHosts = {
   "featured-dogs-collection-parent": () => h(FeaturedDogs, { mobile: true }),
   "featured-dogs-desktop-carousel-parent": () => h(FeaturedDogs),
-  "browse-actions-parent": () => action(["Browse All Pups ", h("i", { key: "arrow", className: "bi bi-arrow-up-right ms-2", "aria-hidden": true })], "#/dogs"),
+  "browse-actions-parent": () => action(["Browse All Pups ", h("i", { key: "arrow", className: "bi bi-arrow-up-right ms-2", "aria-hidden": true })], "#/dogs", "outline-primary"),
   "in-care-desktop-browse-actions-parent": () =>
     action(["Browse All Pups ", h("i", { key: "arrow", className: "bi bi-arrow-up-right ms-2", "aria-hidden": true })], "#/dogs"),
   "adopt-actions-parent": () => action("View Available Pups", "#/dogs"),
@@ -443,6 +444,13 @@ export function Home() {
           host("browse-actions-parent", "compact", 400),
         ]),
       ]),
+      h("svg", {
+        className: "care-mobile-bottom-wave",
+        viewBox: "0 0 400 48",
+        preserveAspectRatio: "none",
+        "aria-hidden": true,
+        focusable: "false",
+      }, h("path", { d: "M0 0H400V20Q350 48 300 24T190 24T80 24T0 24Z" })),
     ]),
     group("in-care-desktop-variant", "d-none d-lg-block", [
       section(
@@ -606,11 +614,13 @@ export function Dogs() {
   );
 }
 
+// The same route serves general contributions and dog-specific virtual adoption, selected by hash parameters.
 export function Donation({ mode, dogId }) {
   const adopting = mode === "adopt";
   const result=useApi(`/dogs/${encodeURIComponent(dogId || 'bella')}`);
   const dog=result.data?.dog;
   if(adopting && !dog) return page('donate',[section('dog-profile',[h(StudentProjectNotice),h('p',{role:'status'}, result.error || 'Loading dog…')])]);
+  // Block the adoption form for an unavailable dog. The backend independently repeats this check on submission.
   if(adopting && !dog.available) return page('donate',[section('dog-profile',[h(StudentProjectNotice),h('div',{className:'alert alert-primary'},'Already sponsored. This dog is unavailable for virtual adoption.',action('Browse available dogs','#/dogs'))])]);
   return page("donate", [
     section("dogs-hero", [row("dogs-hero-columns", [

@@ -1,3 +1,4 @@
+// Homepage-only scroll animation lifecycle. Respect reduced motion and clean up observers and animations when the page unmounts.
 import { useEffect } from 'react';
 
 // Loaded only when Home mounts; library failure leaves all content readable.

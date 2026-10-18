@@ -1,14 +1,18 @@
+// Contribution and virtual-adoption request form. Submission records a demo request rather than charging a payment.
 import { Button, Input, Field } from './ui.js';
 import React, { useId, useState } from 'react';
+import { trackEvent } from './analytics.js';
 import { api } from './api.js';
 const h = React.createElement;
 const icon = name => h('i', { className: `bi bi-${name}`, 'aria-hidden': true });
 
 export function SupportForm({ adopting, dog }) {
   const id = useId();
+  // Virtual adoption starts in monthly mode. General donations also permit once-off requests.
   const [frequency, setFrequency] = useState(adopting ? 'monthly' : 'once');
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('payfast');
+  // Keep validation, saved-reference, error and pending-request state separate for clear feedback.
   const [validated, setValidated] = useState(false);
   const [complete, setComplete] = useState('');
   const [error,setError]=useState('');
@@ -16,6 +20,7 @@ export function SupportForm({ adopting, dog }) {
   const panel = (title, children) => h('fieldset', { className: 'card support-panel shadow-lg' },
     h('div', { className: 'card-body p-4' },
       h('legend', { className: 'h6 text-uppercase fw-semibold mb-3' }, title), ...children));
+  // Render styled choices as real radio inputs so keyboard interaction and form semantics remain native.
   const choice = (name, value, selected, change, title, detail, symbol) => h('label', {
     key: value, className: `support-choice d-flex align-items-center gap-3 p-3 rounded-3${selected ? ' is-selected' : ''}` },
     h(Input, { type: 'radio', name, value, checked: selected, onChange: () => change(value), className: 'form-check-input flex-shrink-0' }),
@@ -37,11 +42,18 @@ export function SupportForm({ adopting, dog }) {
         h('p', { className: 'mb-1 text-body-secondary' }, 'You are virtually adopting'), h('h2', { className: 'h4 mb-0 fw-bold' }, dog.name)))) : null,
     h('form', { noValidate: true, className: `d-flex flex-column gap-4 needs-validation${validated ? ' was-validated' : ''}`,
       onChange: () => setComplete(false), onSubmit: async event => {
+        // Keep submission on this page and enable Bootstrap feedback after the first attempt.
         event.preventDefault();const form=event.currentTarget;setValidated(true);
+        // Focus the first invalid field instead of sending incomplete contact or amount data.
         if(!form.checkValidity()){form.querySelector(':invalid')?.focus();return;}
+        // Ignore repeated submissions while saving or while a successful reference is already displayed.
         if(busy || complete)return;setBusy(true);setError('');
+        // Read native contact inputs from FormData. Amount, frequency and method come from controlled React state.
         const values=Object.fromEntries(new FormData(form));
-        try {const result=await api('/contributions',{method:'POST',body:JSON.stringify({amount,frequency,paymentMethod:method,name:values['Full name'],email:values['Email address'],phone:values['Phone number (optional)'],...(adopting ? {dogId:dog.id} : {})})});setComplete(`${result.message} Reference: ${result.contribution.id}`);}
+        // Post only request details and an optional dog ID. No bank/card credentials are collected.
+        // Show the reference only after the backend confirms persistence, not after a button click.
+        try {const result=await api('/contributions',{method:'POST',body:JSON.stringify({amount,frequency,paymentMethod:method,name:values['Full name'],email:values['Email address'],phone:values['Phone number (optional)'],...(adopting ? {dogId:dog.id} : {})})});trackEvent('demo_contribution_request');setComplete(`${result.message} Reference: ${result.contribution.id}`);}
+        // Display API failures and release the saving state on both success and failure.
         catch(error){setError(error.message);}finally{setBusy(false);}
       } },
       adopting ? h(Input, { type: 'hidden', name: 'dogId', value: dog.id }) : null,

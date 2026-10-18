@@ -1,3 +1,4 @@
+// Terms content kept separate from layout so copy updates do not alter page composition.
 // Terms copy from supplied Figma node 2844:3351.
 export const termsParagraphs = [
   "By using this website and participating in our virtual adoption programme, you agree to the terms and conditions outlined below.",
