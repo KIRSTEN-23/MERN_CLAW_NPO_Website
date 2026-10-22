@@ -1,0 +1,106 @@
+/* Shared AA contrast roles. Keep primitive brand colours for artwork; use darker
+   semantic shades for text/controls. Applies to public and worker entries. */
+.claw-theme {
+  --claw-action: #006bb3;
+  --claw-action-hover: #003f69;
+  --claw-action-active: #00263f;
+  --bs-primary: var(--claw-action);
+  --bs-primary-rgb: 0,107,179;
+  --bs-link-color: var(--claw-action);
+  --bs-link-color-rgb: 0,107,179;
+  --bs-link-hover-color: var(--claw-action-hover);
+  --bs-link-hover-color-rgb: 0,63,105;
+}
+.claw-theme .btn:is(:hover,:focus-visible,:active) { text-decoration: none; }
+.claw-theme :is(.btn-primary,.care-dog-card .btn-primary,.support-submit) {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--claw-action);
+  --bs-btn-border-color: var(--claw-action);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--claw-action-hover);
+  --bs-btn-hover-border-color: var(--claw-action-hover);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--claw-action-active);
+  --bs-btn-active-border-color: var(--claw-action-active);
+}
+.claw-theme .btn-outline-primary {
+  --bs-btn-color: var(--claw-action);
+  --bs-btn-border-color: var(--claw-action);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--claw-action-hover);
+  --bs-btn-hover-border-color: var(--claw-action-hover);
+}
+.claw-theme .dog-filters .btn-primary {
+  --bs-btn-bg: var(--claw-green-800);
+  --bs-btn-border-color: var(--claw-green-800);
+  --bs-btn-hover-bg: var(--claw-green-950);
+  --bs-btn-hover-border-color: var(--claw-green-950);
+}
+.claw-theme .dog-filters .btn-outline-primary {
+  --bs-btn-color: var(--claw-green-800);
+  --bs-btn-border-color: var(--claw-green-800);
+  --bs-btn-hover-bg: var(--claw-green-950);
+  --bs-btn-hover-border-color: var(--claw-green-950);
+}
+.claw-theme :is([data-layout="adopt-actions-parent"],[data-layout="adopt-desktop-actions-parent"]) .btn {
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: #fff;
+  --bs-btn-color: #fff;
+  --bs-btn-hover-bg: #fff;
+  --bs-btn-hover-border-color: #fff;
+  --bs-btn-hover-color: var(--claw-action-hover);
+  --bs-btn-active-bg: #ccebff;
+  --bs-btn-active-color: var(--claw-action-hover);
+}
+.claw-theme .navbar .nav-donate:is(:hover,:focus-visible) { background: var(--claw-green-950); border-color: var(--claw-green-950); color: #fff; }
+.claw-theme .navbar .nav-donate { --bs-btn-bg: var(--claw-green-800); --bs-btn-border-color: var(--claw-green-800); --bs-btn-hover-bg: var(--claw-green-950); --bs-btn-hover-border-color: var(--claw-green-950); }
+.claw-theme .navbar .nav-signup:is(:hover,:focus-visible) { color: var(--claw-green-900); }
+.claw-theme .home-navigation:is(.is-solid,.is-transparent) .navbar .nav-signup:is(:hover,:focus-visible) { color: var(--claw-green-900); }
+.claw-theme :is(.form-control,.form-select,.input-group-text),
+.claw-theme .claw-form :is(.form-control,.form-select,.input-group-text),
+.claw-theme [data-layout="donation-form-parent"] :is(.form-control,.form-select,.input-group-text),
+.claw-theme .support-choice,.claw-theme .support-amount { border-color: #868686; }
+.claw-theme .form-control::placeholder { color: #686868; opacity: 1; }
+.claw-theme :is(input,select,textarea,button,a,[tabindex]):focus-visible {
+  outline: .1875rem solid #003f69;
+  outline-offset: .1875rem;
+  box-shadow: 0 0 0 .3125rem #fff;
+}
+.claw-theme :is(.dog-profile-facts,.terms-updated,.adoption-status-dates) { color: #686868; }
+.claw-theme .care-dog-card .care-card-facts { color: var(--claw-green-800); }
+.claw-theme .care-dog-card.is-active :is(.care-card-facts,.care-card-facts dt) { color: var(--claw-green-200); }
+.claw-theme .care-availability { color: var(--claw-green-800); }
+.claw-theme .care-profile-link { opacity: 1; background: #000c; --bs-btn-bg: #000c; --bs-btn-hover-bg: #000; }
+.claw-theme .care-profile-link:is(:hover,:focus-visible) { background: #000; }
+.claw-theme :is([data-layout="in-care"],[data-layout="in-care-desktop"]) { --claw-surface: var(--claw-green-800); }
+.claw-theme :is([data-layout="in-care"],[data-layout="in-care-desktop"])::after { background: var(--claw-green-800); }
+.claw-theme :is([data-layout="in-care"],[data-layout="in-care-desktop"]) :is(.body-copy,.section-tagline) { color: #fff; }
+.claw-theme :is(.appreciation,.auth-content h1),
+.claw-theme [data-layout="about"] .section-tagline { color: var(--claw-action); }
+.claw-theme .dogs-eyebrow { color: var(--claw-green-800); }
+.claw-theme .section-tagline { color: var(--claw-green-800); }
+.claw-theme :is([data-layout="in-care"],[data-layout="in-care-desktop"]) .section-tagline { color: #fff; }
+.claw-theme .permanent-adoption-contact h6 { color: var(--claw-green-800); }
+.claw-theme :is([data-layout="adopt-information-group"],[data-layout="adopt-desktop-information-parent"]) { --claw-surface: var(--claw-action); background: var(--claw-action); }
+.claw-theme [data-layout="donation-introduction"] .page-copy,
+.claw-theme [data-layout="donation-information-column"] .page-copy,
+.claw-theme [data-layout="donation-introduction"] .section-heading { color: var(--claw-green-800); }
+.claw-theme [data-layout="donation-introduction"] .hero-title { color: var(--claw-green-900); }
+.claw-theme .support-period { color: #005c99; border-color: var(--claw-action); }
+.claw-theme .support-choice:is(:hover,.is-selected),.claw-theme .support-amount:is(:hover,.is-selected) { border-color: var(--claw-action); }
+.claw-theme .auth-password-toggle,.claw-theme .auth-content .input-group-text { color: #686868; }
+.claw-theme .badge.text-bg-success { color: var(--claw-green-800) !important; }
+.claw-theme .badge.text-bg-primary { color: #005c99 !important; }
+.claw-theme [data-layout="footer-container"] a:is(:hover,:focus-visible) { color: var(--claw-blue-200); }
+@media (max-width: 61.999rem) {
+  .claw-theme [data-layout="in-care"] { background: var(--claw-green-800); }
+  .claw-theme .care-mobile-bottom-wave { fill: var(--claw-green-800); }
+  .home-assets-page [data-layout="in-care"]::before {
+    background-image: none;
+    background-color: var(--claw-green-800);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 48' preserveAspectRatio='none'%3E%3Cpath fill='white' d='M0 28Q40 0 100 24T210 24T320 24T400 24V48H0Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 48' preserveAspectRatio='none'%3E%3Cpath fill='white' d='M0 28Q40 0 100 24T210 24T320 24T400 24V48H0Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  }
+}
+@media (prefers-reduced-motion: reduce) { .claw-theme * { scroll-behavior: auto !important; } }
+
