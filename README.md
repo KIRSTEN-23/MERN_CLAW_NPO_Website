@@ -1,6 +1,73 @@
-# CLAW Virtual Adoption — student project
+<img src="https://github.com/user-attachments/assets/1ecf5ac4-7414-4e14-a08f-752bfb226459" />
 
-A responsive implementation of the supplied UX200 CLAW design. Visitors can learn about CLAW, browse fictional dog profiles, filter available dogs, create an account and submit demonstration contribution requests. No real payments are taken and demo requests do not activate sponsorships.
+# CLAW Virtual Adoption
+
+## About Project
+
+A responsive implementation of the supplied UX200 CLAW design. The project consists of two sides:
+
+#### A. The Public Facing Side
+
+Visitors can learn about CLAW, browse and filter fictional dog profiles, create an account and submit demonstration contribution requests. 
+
+HOWEVER...
+
+No real payments are taken and demo requests do not activate sponsorships.
+
+![CLAW website on desktop and mobile](docs/assets/Mockup%201.png)
+
+![Additional CLAW website preview](docs/assets/Mockup%202.png)
+
+![Browse Page mockup]()
+
+![Details Page Mockup]()
+
+![Adoption Page Mockup]()
+
+![Donations Page Mockup]()
+
+#### B. The Admin/Staff Dashboard 
+
+to be documented...
+
+#### Technologies Used
+
+- React loaded as browser ES modules through CDNs; Bootstrap and Bootstrap Icons.
+- Node.js and Express, serving the same-origin frontend and `/api` in production.
+- MySQL through mysql2, with parameterized queries and verified TLS.
+- Cookie sessions: hashed tokens in MySQL; HttpOnly, SameSite=Lax and production Secure cookies.
+- Optional consent-based Google Analytics, page metadata, robots.txt and a homepage sitemap.
+- Azure App Service / Azure Database for MySQL; AWS Lightsail with Docker Compose and Caddy.
+
+---
+
+## Design reference and implementation
+
+Based on the supplied UX200 CLAW Design System and Campaign Kit, with source-node references retained in the page compositions. Relevant pages:
+
+- Design System
+- Lofi Wireframes
+- Campaign Kit
+- Responsive UI Screens
+
+The public website and a separate worker web app are implemented in this repository. Though, the worker dashboard has not been deployed yet.
+
+[View Design in Figma](https://www.figma.com/design/1NsI5xa1XPe75tz7dLW3ag?node-id=6138-10854) 
+
+### Core Design Execution
+
+##### Frontend
+
+- Shared components provide navigation, dog cards, badges, buttons and form controls.
+- Home-page animations and a swipeable mobile carousel support reduced-motion preferences.
+- Available and already-sponsored states are distinct
+- Permanent placements are excluded from the public dog API.
+
+##### Backend
+
+![ERD Diagram From SQL]()
+
+---
 
 ## Live deployments
 
@@ -11,52 +78,87 @@ A responsive implementation of the supplied UX200 CLAW design. Visitors can lear
 
 The deployments have separate databases and accounts. Use fictional details for assessment testing. AWS uses an HTTPS IP address with a publicly trusted certificate; no custom domain is required.
 
-## Design reference and implementation
+Click here to [learn more about my deployment process.]()
 
-Based on the supplied UX200 [CLAW Figma design](https://www.figma.com/design/1NsI5xa1XPe75tz7dLW3ag?node-id=6138-10854) with source-node references retained in the page compositions; designer attribution still needs confirmation for final submission. The public website and a separate worker web app are implemented in this repository. The worker update has not been deployed yet.
+Note: Only the visitor aka public side was deployed. The Staff Dashboard is not part of the build yet.
 
-Shared components provide navigation, dog cards, badges, buttons and form controls. Home-page animations and a swipeable mobile carousel support reduced-motion preferences. Available and already-sponsored states are distinct; permanent placements are excluded from the public dog API.
+---
 
-## Worker web app
+## Running the Project
 
-Open `/worker` locally for the separate staff interface. It includes dashboard metrics, animal profile/photo management, archive/restore, demonstration-request reviews and administrator-controlled staff access. Run `npm run db:worker` from `backend/` to apply the additive worker schema. To grant the first administrator, run `npm run db:worker -- existing-user@example.com admin` for an account already registered locally. Public signup never grants worker access.
+### View the public website
 
-Worker roles are view-only, editor and administrator. The dashboard includes recent views and requests of all review statuses. Animal viewing and editing are separate; archives are reversible. Request approval never confirms payment or activates sponsorship. For fictional local worker data, run `npm run db:seed:worker` from `backend/`; this refuses production and non-local database hosts.
+Use either website listed under [Live deployments](#live-deployments). No local setup is required.
 
-## Technologies
+### Run locally
 
-- React loaded as browser ES modules through CDNs; Bootstrap and Bootstrap Icons.
-- Node.js and Express, serving the same-origin frontend and `/api` in production.
-- MySQL through mysql2, with parameterized queries and verified TLS.
-- Cookie sessions: hashed tokens in MySQL; HttpOnly, SameSite=Lax and production Secure cookies.
-- Optional consent-based Google Analytics, page metadata, robots.txt and a homepage sitemap.
-- Azure App Service / Azure Database for MySQL; AWS Lightsail with Docker Compose and Caddy.
+You will need Node.js 22.10+ and a running MySQL service.
 
-## Run locally
+1. Install dependencies from the repository root and create your local environment file:
 
-Use Node.js 22.10+ and a local MySQL service. Install backend dependencies from the repository root:
+   ```sh
+   npm ci
+   cp backend/.env.example backend/.env
+   ```
 
-```sh
-npm ci
-cp backend/.env.example backend/.env
-```
+2. Add your local database credentials to `backend/.env` and set:
 
-Fill in your own local database credentials. Never commit `.env`. Create the local database and run the explicit schema/fictional-data setup described in [backend/README.md](backend/README.md). Do not point setup commands at an existing production database.
+   ```env
+   APP_ORIGIN=http://localhost:5174
+   PORT=5002
+   ```
 
-For this machine, ports 5001 and 5173 may already be occupied by another project. In separate terminals:
+   Follow [backend setup instructions](backend/README.md) to create the database, apply its schema and add fictional dog data. Never commit `.env` or run fictional-data setup against a production database.
 
-```sh
-cd backend
-PORT=5002 npm run dev
-```
+3. Start the backend in one terminal:
 
-```sh
-cd frontend
-PORT=5174 API_URL=http://127.0.0.1:5002 npm run dev
-```
+   ```sh
+   cd backend
+   npm run dev
+   ```
 
-Set `APP_ORIGIN=http://localhost:5174` in the local backend environment when using that frontend port, so registration and other writes pass the origin check. Open http://localhost:5174 and check http://localhost:5002/api/health. The frontend needs no npm package installation or build pipeline.
+4. Start the frontend in another terminal:
 
+   ```sh
+   cd frontend
+   PORT=5174 API_URL=http://127.0.0.1:5002 npm run dev
+   ```
+
+Open the public website at http://localhost:5174. Check database readiness at http://localhost:5002/api/health.
+
+The frontend requires no separate dependency installation or build step.
+
+### Set up a local worker account
+
+Complete the local setup above, then register an account through the public website.
+
+From the `backend/` directory:
+
+1. Apply the worker schema:
+
+   ```sh
+   npm run db:worker
+   ```
+
+2. Grant administrator access to your registered account, replacing the example email:
+
+   ```sh
+   npm run db:worker -- existing-user@example.com admin
+   ```
+
+3. Optionally add fictional worker data:
+
+   ```sh
+   npm run db:seed:worker
+   ```
+
+   This command refuses production mode and non-local database hosts.
+
+Open http://localhost:5174/worker and sign in with your registered account.
+
+The worker app includes dashboard metrics, recently viewed profiles, animal and photo management, adoption-request reviews, archive/restore and staff access management.
+
+**Access and behaviour:** Public registration does not grant worker access. Worker roles are view-only, editor and administrator. Viewing and editing are separate, archives are reversible, and approving a request does not confirm payment or activate sponsorship.
 ## Validation and deployment
 
 ```sh
@@ -64,10 +166,19 @@ npm test
 npm run check:deployment
 ```
 
-Tests use test adapters; the dedicated real-MySQL integration case skips unless explicitly configured. No production database should be used for tests.
+Notes and Disclaimers:
 
-Deploy from the repository root. Azure App Service uses `npm ci --omit=dev` and startup command `npm start`; configure production environment variables from `backend/.env.example`, the exact HTTPS `APP_ORIGIN`, verified MySQL TLS and restricted database access. Let Azure supply `PORT`. Schema setup is an explicit operator step, never automatic startup work.
+- Tests use test adapters
+- the dedicated real-MySQL integration case skips unless explicitly configured.
+- No production database should be used for tests.
+- Deploy from the repository root. 
 
+--- 
+
+### Azure
+Azure App Service uses `npm ci --omit=dev` and startup command `npm start`; configure production environment variables from `backend/.env.example`, the exact HTTPS `APP_ORIGIN`, verified MySQL TLS and restricted database access. Let Azure supply `PORT`. Schema setup is an explicit operator step, never automatic startup work.
+
+### AWS
 AWS uses the Dockerfile and Compose configuration in `deployment/aws/`, with Caddy serving HTTPS and persistent MySQL and animal-photo volumes. Back up database and upload volumes before updating; rebuild/restart the application service without deleting volumes. To recover, deploy the last working source revision. Keep credentials in server environment files, outside Git.
 
 After either deployment, verify `/api/health`, dog data, images and session login/logout. Uploaded photos require persistent storage (`UPLOAD_DIR`); do not overwrite production data with fictional seeds.
@@ -76,8 +187,15 @@ Both platforms run the same application source. Production startup serves only f
 
 ## Challenges and limitations
 
-Linux filename casing, runtime ports, same-origin cookies, restricted database access and CA verification required explicit deployment checks. Mobile wave clipping was addressed with fixed-depth decoration and a separate SVG bottom edge. AWS startup scripts must be POSIX-shell compatible because Lightsail wraps user data in its initialization script.
+- Linux filename casing, runtime ports, same-origin cookies, restricted database access and CA verification required explicit deployment checks.
+- Mobile wave clipping was addressed with fixed-depth decoration and a separate SVG bottom edge.
+- AWS startup scripts must be POSIX-shell compatible because Lightsail wraps user data in its initialization script.
 
-Hash routing is retained from the supplied implementation. Google cannot treat each fragment screen as an independently crawlable URL; the sitemap lists the homepage only. Accessibility contrast checks run with the test suite; manual accessibility and performance review remain necessary. The AWS copy is marked noindex and has Analytics disabled to keep the primary campaign reporting separate.
+- Hash routing is retained from the supplied implementation.
+- Google cannot treat each fragment screen as an independently crawlable URL; the sitemap lists the homepage only.
+- Accessibility contrast checks run with the test suite; manual accessibility and performance review remain necessary.
+- The AWS copy is marked noindex and has Analytics disabled to keep the primary campaign reporting separate.
 
+###### Final Note:
 This is an assessment demonstration, not an official CLAW fundraising service. The AWS single-server setup has no high availability; its database volume must be backed up before future schema changes. Keep both deployments available for assessment and review ongoing costs afterward.
+
