@@ -640,12 +640,17 @@ export function DogDetails({ dogId }) {
   const {data,error,loading,retry}=useApi(`/dogs/${encodeURIComponent(dogId || 'bella')}`);
   if(loading || error)return page('dog-details',[section('dog-profile',[h('p',{role:error?'alert':'status'},error || 'Loading dog…'),error ? action('Browse available dogs','#/dogs') : null])]);
   const dog=data.dog;
+  return page('dog-details',[h(DogProfileContent,{dog})]);
+}
+
+// Shared display composition; worker screens supply management actions instead of sponsorship actions.
+export function DogProfileContent({ dog, actions = null }) {
   const story = dog.story.replace(/\b\d{4}-\d{2}-\d{2}\b/g, value =>
     new Date(`${value}T00:00:00`).toLocaleDateString('en-GB', {
       day: 'numeric', month: 'long', year: 'numeric',
     }),
   );
-  return page('dog-details',[section('dog-profile',[row('profile-columns',[
+  return section('dog-profile',[row('profile-columns',[
     col('profile-summary-column','col-12 col-lg-4',[
       stack('profile-summary-group',[
         h('img',{src:dog.image,alt:dog.name,'data-dog-id':dog.id,className:'home-image dog-data-image dog-profile-image'}),
@@ -660,14 +665,14 @@ export function DogDetails({ dogId }) {
         stack('dog-overview-parent',[copy('dog-overview-parent-heading','h5',`Meet ${dog.name}`,null,'profile-heading'),copy('dog-overview-parent-copy','p',dog.overview,null,'profile-copy')],'host-copy surface-200 profile-editorial-group'),
         stack('dog-story-parent',[copy('dog-story-parent-heading','h5',dog.sex === 'Female' ? 'Her Story' : dog.sex === 'Male' ? 'His Story' : 'Their Story',null,'profile-heading'),copy('dog-story-parent-copy','p',story,null,'profile-copy')],'host-copy surface-300 profile-editorial-group'),
         stack('dog-personality-parent',[h('h5',{className:'profile-heading'},'Personality'),h('ul',{className:'personality-list'},...dog.personality.map(item=>h('li',{key:item},item)))]),
-        h('hr',{className:'my-0'}),
-        dog.available ? action(`Support ${dog.name}`,`#/donate?mode=adopt&dog=${dog.id}`) : h('div',{className:'d-flex flex-column gap-3'},
+        !actions && h('hr',{className:'my-0'}),
+        actions || (dog.available ? action(`Support ${dog.name}`,`#/donate?mode=adopt&dog=${dog.id}`) : h('div',{className:'d-flex flex-column gap-3'},
           action('Notify me when available',`mailto:CLAWsouthafrica@gmail.com?subject=${encodeURIComponent(`Availability notification request: ${dog.name}`)}&body=${encodeURIComponent(`Hello CLAW, please let me know if ${dog.name} becomes available for virtual adoption. Thank you.`)}`, 'outline-primary'),
-          h('div',{className:'alert support-period availability-notice mb-0',role:'note'},h('h2',{className:'h6 fw-bold'},'About availability notifications'),h('p',{className:'mb-0'},`${dog.name} is already sponsored. In-app notifications are a future feature. This is not a reservation and does not guarantee a sponsorship opportunity. If ${dog.name} finds a permanent home, they will no longer be available for virtual adoption.`))),
-        h('div',{className:'permanent-adoption-contact'},h('h6',{className:'mb-0'},`Want to give ${dog.name} a forever home?`,' ',h('span',{className:'permanent-adoption-description'},'Contact CLAW to discuss permanent adoption and arrange a meeting.'))),
+          h('div',{className:'alert support-period availability-notice mb-0',role:'note'},h('h2',{className:'h6 fw-bold'},'About availability notifications'),h('p',{className:'mb-0'},`${dog.name} is already sponsored. In-app notifications are a future feature. This is not a reservation and does not guarantee a sponsorship opportunity. If ${dog.name} finds a permanent home, they will no longer be available for virtual adoption.`)))),
+        !actions && h('div',{className:'permanent-adoption-contact'},h('h6',{className:'mb-0'},`Want to give ${dog.name} a forever home?`,' ',h('span',{className:'permanent-adoption-description'},'Contact CLAW to discuss permanent adoption and arrange a meeting.'))),
       ]),
     ]),
-  ])])]);
+  ])]);
 }
 
 function informationPage(name, groups, source) {

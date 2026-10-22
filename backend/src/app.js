@@ -2,6 +2,7 @@
 import { dogStatus } from "./dog-status.js";
 import express from "express";
 import { serveFrontend } from "./frontend-serving.js";
+import { installWorker } from "./worker.js";
 import {
   randomBytes,
   randomUUID,
@@ -11,6 +12,7 @@ import {
 } from "node:crypto";
 import { promisify } from "node:util";
 const derive = promisify(scrypt);
+const sessionLifetime = 7 * 86400000;
 const hash = (value) => createHash("sha256").update(value).digest("hex");
 const emailValid = (value) =>
   typeof value === "string" &&
@@ -57,14 +59,17 @@ export function createApp(
       .map((x) => x.trim())
       .find((x) => x.startsWith("claw_session="))
       ?.slice(13);
-    return (
+    const user = (
       token &&
       (await db
         .prepare(
-          "SELECT users.* FROM sessions JOIN users ON users.id=sessions.user_id WHERE token_hash=? AND expires_at>?",
+          "SELECT users.*,sessions.expires_at AS session_expires_at FROM sessions JOIN users ON users.id=sessions.user_id WHERE token_hash=? AND expires_at>?",
         )
         .get(hash(token), Date.now()))
     );
+    // Sessions have a fixed lifetime: derive the real sign-in time from their persisted expiry.
+    // Refreshing a page must not change this date. Existing sessions need no schema migration.
+    return user ? { ...user, lastLoginAt: user.session_expires_at ? new Date(Number(user.session_expires_at) - sessionLifetime).toISOString() : null } : user;
   };
   // Reject foreign browser origins on writes. Same-origin requests match APP_ORIGIN.
   app.use("/api", (req, res, next) => {
@@ -106,7 +111,7 @@ export function createApp(
           typeof row.data === "string" ? JSON.parse(row.data) : row.data,
         ),
       )
-      .filter((d) => d.placementStatus === "in_care");
+      .filter((d) => d.placementStatus === "in_care" && !d.archivedAt);
     if (req.query.available === "true") dogs = dogs.filter((d) => d.available);
     for (const key of ["size", "sex"])
       if (req.query[key]) dogs = dogs.filter((d) => d[key] === req.query[key]);
@@ -120,7 +125,7 @@ export function createApp(
     const dog = dogStatus(
       typeof row.data === "string" ? JSON.parse(row.data) : row.data,
     );
-    if (dog.placementStatus === "permanently_adopted")
+    if (dog.placementStatus === "permanently_adopted" || dog.archivedAt)
       return fail(
         res,
         404,
@@ -134,7 +139,7 @@ export function createApp(
     const token = randomBytes(32).toString("hex");
     await db
       .prepare("INSERT INTO sessions VALUES (?,?,?)")
-      .run(hash(token), user.id, Date.now() + 7 * 86400000);
+      .run(hash(token), user.id, Date.now() + sessionLifetime);
     cookie(res, token, 7 * 86400);
     res.json({ user: publicUser(user) });
   };
@@ -316,6 +321,7 @@ export function createApp(
         .all(user.id),
     });
   });
+  installWorker(app, db, session);
   // Finish API routing before static files so unknown endpoints always receive JSON.
   app.use("/api", (req, res, next) => {
     if (production && req.path === "/public-config" && ["GET", "HEAD"].includes(req.method)) return next();

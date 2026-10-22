@@ -10,9 +10,13 @@ test('MySQL schema, JSON seeds, unique accounts and durable persistence',{skip:p
  try {
   const schema=await readFile(new URL('../sql/schema.sql',import.meta.url),'utf8');
   for(const statement of schema.split(';').filter(s=>s.trim()))await db.pool.query(statement);
+  const workerSchema=await readFile(new URL('../sql/worker-schema.sql',import.meta.url),'utf8');
+  for(const statement of workerSchema.split(';').filter(s=>s.trim()))await db.pool.query(statement);
   await seedDatabase(db);await seedDatabase(db);
   const dogs=await db.prepare('SELECT data FROM dogs').all();assert.ok(dogs.length>=10);
   await db.prepare('INSERT INTO users VALUES (?,?,?,?,?)').run(id,`test-${suffix}`,`${suffix}@example.com`,'test-hash',new Date().toISOString());
+  await db.prepare('INSERT INTO worker_access (user_id,role,granted_at) VALUES (?,?,?)').run(id,'editor',new Date().toISOString());
+  assert.equal((await db.prepare('SELECT role FROM worker_access WHERE user_id=?').get(id)).role,'editor');
   const another=await openDatabase();try{assert.equal((await another.prepare('SELECT * FROM users WHERE id=?').get(id)).username,`test-${suffix}`);}finally{await another.close();}
   await assert.rejects(db.prepare('INSERT INTO users VALUES (?,?,?,?,?)').run(randomUUID(),`test-${suffix}`,`other-${suffix}@example.com`,'test-hash',new Date().toISOString()),error=>error.code==='ER_DUP_ENTRY');
  }finally{await db.prepare('DELETE FROM users WHERE id=?').run(id);await db.close();}

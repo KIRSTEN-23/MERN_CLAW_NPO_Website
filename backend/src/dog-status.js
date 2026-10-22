@@ -24,7 +24,7 @@ export function dogStatus(record, now = new Date()) {
     : "in_care";
   // Permanent placement always makes a dog unavailable, even after a virtual sponsorship expires.
   dog.available =
-    dog.placementStatus === "in_care" && dog.sponsorshipStatus !== "active";
+    !dog.archivedAt && dog.placementStatus === "in_care" && dog.sponsorshipStatus !== "active";
   // Remove the ambiguous legacy date from the public response in favor of explicit sponsorship fields.
   dog.adoptionDate = null;
   if (dog.mock && dog.sponsorshipStartedAt)

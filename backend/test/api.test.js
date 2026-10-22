@@ -10,7 +10,7 @@ function repository() {
  async get(...args){
   if(sql==='SELECT 1 AS ok')return {ok:1};
   if(sql.includes('FROM dogs WHERE')){const dog=seedDogs.find(d=>d.id===args[0]);return dog?{data:dog}:undefined;}
-  if(sql.includes('JOIN users')){const session=sessions.find(s=>s.token===args[0] && s.expires>args[1]);return users.find(u=>u.id===session?.userId);}
+  if(sql.includes('JOIN users')){const session=sessions.find(s=>s.token===args[0] && s.expires>args[1]);const user=users.find(u=>u.id===session?.userId);return user?{...user,session_expires_at:session.expires}:undefined;}
   if(sql.includes('FROM users WHERE'))return users.find(u=>u.email===args[0] && u.username===args[1]);
   throw new Error(`Unexpected SQL: ${sql}`);
  },async all(...args){if(sql.includes('FROM dogs'))return seedDogs.map(data=>({data}));if(sql.includes('FROM contributions'))return contributions.filter(c=>c.user_id===args[0]);throw new Error(sql);},

@@ -15,10 +15,13 @@ async function fixture(t, db = ready()) {
 }
 test('production serves only frontend entry, modules and assets; API misses stay JSON', async t => {
  const base = await fixture(t);
- for (const [path, type] of [['/', 'text/html'], ['/index.html', 'text/html'], ['/src/main.js', 'javascript'], ['/src/styles/base.css', 'text/css'], ['/public/assets/shared/logo.svg', 'image/svg+xml']]) {
+ for (const [path, type] of [['/', 'text/html'], ['/index.html', 'text/html'], ['/worker', 'text/html'], ['/worker.html', 'text/html'], ['/src/worker/main.js', 'javascript'], ['/src/worker/worker.css', 'text/css'], ['/src/main.js', 'javascript'], ['/src/styles/base.css', 'text/css'], ['/public/assets/shared/logo.svg', 'image/svg+xml']]) {
   const response = await fetch(base + path); assert.equal(response.status, 200, path); assert.ok(response.headers.get('content-type').includes(type));
  }
  assert.equal((await fetch(base + '/', {method: 'HEAD'})).status, 200);
+ const worker = await fetch(base + '/worker');
+ assert.equal(worker.headers.get('x-robots-tag'), 'noindex, nofollow');
+ assert.ok(!(await worker.text()).includes('/src/main.js'), 'worker has a separate browser entry');
  for (const path of ['/api', '/api/missing']) {
   const response = await fetch(base + path); assert.equal(response.status, 404); assert.match(response.headers.get('content-type'), /application\/json/); assert.equal((await response.json()).error, 'Endpoint not found.');
  }

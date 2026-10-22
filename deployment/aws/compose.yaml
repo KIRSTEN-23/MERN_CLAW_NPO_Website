@@ -45,6 +45,7 @@ services:
       GOOGLE_SITE_VERIFICATION: ''
     volumes:
       - ./tls/ca.pem:/run/mysql-ca.pem:ro
+      - animal-photos:/app/data/uploads
     depends_on:
       mysql:
         condition: service_healthy
@@ -66,3 +67,4 @@ volumes:
   mysql-data:
   caddy-data:
   caddy-config:
+  animal-photos:

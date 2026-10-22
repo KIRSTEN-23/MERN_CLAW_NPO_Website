@@ -8,7 +8,7 @@ export async function api(path,options={}) {
  const isJson=response.headers.get('content-type')?.includes('application/json');
  if(!isJson)throw new Error('The CLAW API is unavailable. Please restart the frontend server and check that the backend is running.');
  const data=await response.json().catch(()=>({}));
- if(!response.ok)throw new Error(data.error||'Unable to complete this request. Please try again.');
+ if(!response.ok)throw Object.assign(new Error(data.error||'Unable to complete this request. Please try again.'),{status:response.status});
  return data;
 }
 export function useApi(path) {

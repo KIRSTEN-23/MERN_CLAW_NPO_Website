@@ -21,6 +21,10 @@ export function serveFrontend(app, env = process.env) {
     redirect: false,
     fallthrough: true,
   };
+  // The worker is a separate browser entry, sharing only the authenticated API and primitives.
+  app.get(['/worker', '/worker.html'], async (_req, res) => {
+    res.set({ 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' }).type('html').send(await readFile(`${frontend}worker.html`, 'utf8'));
+  });
   // Only the entry HTML is mapped to the root. Hash routing happens entirely in the browser.
   app.get(["/", "/index.html"], async (_req, res) => {
     let html = await readFile(`${frontend}index.html`, "utf8");

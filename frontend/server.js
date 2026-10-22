@@ -21,7 +21,7 @@ const mimeTypes = {
 };
 
 const server = createServer(async (request, response) => {
-  if (request.url.startsWith('/api/')) {
+  if (request.url.startsWith('/api/') || request.url.startsWith('/public/uploads/')) {
     const upstream=httpRequest(new URL(request.url, process.env.API_URL || 'http://127.0.0.1:5001'), {method:request.method,headers:request.headers}, result=>{
       response.writeHead(result.statusCode,result.headers);result.pipe(response);
     });
@@ -42,9 +42,10 @@ const server = createServer(async (request, response) => {
     const allowed =
       pathname === "/" ||
       pathname === "/index.html" ||
+      pathname === "/worker" || pathname === "/worker.html" ||
       pathname.startsWith("/src/") ||
       pathname.startsWith("/public/");
-    const relativePath = pathname === "/" ? "index.html" : pathname.slice(1);
+    const relativePath = pathname === "/" ? "index.html" : pathname === '/worker' ? 'worker.html' : pathname.slice(1);
     const filePath = resolve(rootDirectory, relativePath);
 
     if (!allowed || !filePath.startsWith(rootDirectory + sep)) {

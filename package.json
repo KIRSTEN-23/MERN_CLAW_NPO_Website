@@ -12,7 +12,9 @@
     "db:schema": "node backend/src/migrate.js --schema-only",
     "db:seed": "node backend/src/seed-database.js",
     "db:setup": "node backend/src/migrate.js",
-    "check:deployment": "node scripts/check-deployment.js"
+    "check:deployment": "node scripts/check-deployment.js",
+    "db:worker": "node backend/src/worker-setup.js",
+    "db:seed:worker": "node --env-file-if-exists=backend/.env backend/src/seed-worker.js"
   },
   "dependencies": {
     "express": "^5.1.0",

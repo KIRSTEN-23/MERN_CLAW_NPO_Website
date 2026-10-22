@@ -9,7 +9,9 @@
     "db:setup": "node --env-file-if-exists=.env src/migrate.js",
     "test": "node --env-file-if-exists=.env --test",
     "db:schema": "node --env-file-if-exists=.env src/migrate.js --schema-only",
-    "db:seed": "node --env-file-if-exists=.env src/seed-database.js"
+    "db:seed": "node --env-file-if-exists=.env src/seed-database.js",
+    "db:worker": "node --env-file-if-exists=.env src/worker-setup.js",
+    "db:seed:worker": "node --env-file-if-exists=.env src/seed-worker.js"
   },
   "engines": {
     "node": ">=22.10.0"
