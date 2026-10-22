@@ -4,6 +4,8 @@ node_modules/
 .env.*
 !.env.example
 *.log
+/backend/data/
+/data/
 
 # Local setup and layout notes (excluded from commit history).
 /CLAW_SETUP.md
@@ -12,3 +14,7 @@ node_modules/
 # macOS resource forks and archive metadata
 ._*
 __MACOSX/
+
+# Keep working notes local; README files are the published documentation.
+*.[mM][dD]
+!README.md
