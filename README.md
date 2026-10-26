@@ -1,6 +1,49 @@
+![CLAW virtual adoption campaign banner](docs/assets/Banner%205.jpg)
+
 # CLAW Virtual Adoption — student project
 
 A responsive implementation of the supplied UX200 CLAW design. Visitors can learn about CLAW, browse fictional dog profiles, filter available dogs, create an account and submit demonstration contribution requests. No real payments are taken and demo requests do not activate sponsorships.
+
+## Website previews
+
+![CLAW website on desktop and mobile](docs/assets/Mockup%201.png)
+
+![Additional CLAW website preview](docs/assets/Mockup%202.png)
+
+### Website screenshots
+
+Screenshots of the deployed public websites, captured on 25 October 2026.
+
+<details>
+<summary>Azure campaign website</summary>
+
+![Azure homepage](docs/assets/screenshots/azure-home.png)
+
+![Dog listing and filters](docs/assets/screenshots/azure-dogs.png)
+
+![Dog profile](docs/assets/screenshots/azure-dog-profile.png)
+
+![Demonstration contribution form](docs/assets/screenshots/azure-contribution.png)
+
+![Mobile homepage](docs/assets/screenshots/azure-mobile.png)
+
+</details>
+
+<details>
+<summary>AWS assessment website</summary>
+
+![AWS homepage](docs/assets/screenshots/aws-home.png)
+
+</details>
+
+<details>
+<summary>Local worker app</summary>
+
+The worker app is local-only. This screenshot uses an isolated fictional test fixture, so its metrics do not represent live activity.
+
+![Local worker dashboard with fictional records](docs/assets/screenshots/worker-local-fixture.png)
+
+</details>
 
 ## Live deployments
 
@@ -11,11 +54,61 @@ A responsive implementation of the supplied UX200 CLAW design. Visitors can lear
 
 The deployments have separate databases and accounts. Use fictional details for assessment testing. AWS uses an HTTPS IP address with a publicly trusted certificate; no custom domain is required.
 
-## Design reference and implementation
+## Project Structure
 
-Based on the supplied UX200 [CLAW Figma design](https://www.figma.com/design/1NsI5xa1XPe75tz7dLW3ag?node-id=6138-10854) with source-node references retained in the page compositions; designer attribution still needs confirmation for final submission. The public website and a separate worker web app are implemented in this repository. The worker update has not been deployed yet.
+```text
+frontend/
+├── src/
+│   ├── components/    # Shared controls, public features and API helpers
+│   ├── pages/         # Public page compositions
+│   ├── styles/        # Brand styling and accessibility adjustments
+│   └── worker/        # Separate local staff interface
+├── public/            # Images, icons and other public assets
+└── server.js          # Local frontend server and API proxy
+backend/
+├── src/               # Express routes, database access and setup commands
+└── test/              # Backend and deployment checks
+deployment/aws/        # Docker Compose, Caddy and server setup scripts
+scripts/               # Repository-level deployment validation
+docs/assets/           # README mockups and screenshots
+```
 
-Shared components provide navigation, dog cards, badges, buttons and form controls. Home-page animations and a swipeable mobile carousel support reduced-motion preferences. Available and already-sponsored states are distinct; permanent placements are excluded from the public dog API.
+## Architecture
+
+The public website and worker web app share an Express API and MySQL database. React components handle presentation and interaction, the API validates requests and enforces access rules, and the database adapter executes parameterized SQL queries.
+
+A dog-list request follows this path:
+
+```text
+DogListing → API helper → GET /api/dogs → MySQL adapter → MySQL
+           ← JSON response ←              ← query results
+```
+
+During local development, the frontend server forwards `/api` requests to the backend. In production, Express serves both the frontend and API on one origin, keeping session-cookie authentication on the same website.
+
+The worker interface has separate entry files and role-controlled API routes. Public registration does not grant staff access. Database schema setup and fictional-data seeding remain explicit commands, separate from normal startup.
+
+## Stylekit
+
+The supplied UX200 [CLAW Figma design](https://www.figma.com/design/1NsI5xa1XPe75tz7dLW3ag?node-id=6138-10854) is the visual reference. Designer attribution still needs confirmation for final submission.
+
+- **Colours and typography:** Shared brand styles are defined in `frontend/src/styles/base.css`, with contrast adjustments in `frontend/src/styles/accessibility.css`.
+- **Components:** Shared buttons, badges and form controls are defined in `frontend/src/components/ui.js`; dog cards and public profile features are reused across page compositions.
+- **Responsive behaviour:** Bootstrap layout utilities and targeted CSS adapt the design to smaller screens.
+- **Motion:** Home-page animations and the swipeable mobile carousel support reduced-motion preferences.
+
+Available and already-sponsored states remain distinct; permanent placements are excluded from the public dog API.
+
+## Roadmap
+
+- [x] Implement the responsive public campaign website.
+- [x] Deploy the public website on Azure and AWS.
+- [x] Build the local worker interface with role-controlled access.
+- [ ] Complete manual accessibility and performance reviews across devices.
+- [ ] Implement in-app availability and permanent-placement notifications.
+- [ ] Assess worker deployment requirements before publishing the staff interface.
+
+Real payment processing is outside the current assessment implementation.
 
 ## Worker web app
 
@@ -79,5 +172,27 @@ Both platforms run the same application source. Production startup serves only f
 Linux filename casing, runtime ports, same-origin cookies, restricted database access and CA verification required explicit deployment checks. Mobile wave clipping was addressed with fixed-depth decoration and a separate SVG bottom edge. AWS startup scripts must be POSIX-shell compatible because Lightsail wraps user data in its initialization script.
 
 Hash routing is retained from the supplied implementation. Google cannot treat each fragment screen as an independently crawlable URL; the sitemap lists the homepage only. Accessibility contrast checks run with the test suite; manual accessibility and performance review remain necessary. The AWS copy is marked noindex and has Analytics disabled to keep the primary campaign reporting separate.
+
+## Contributing
+
+This repository is maintained as a student assessment project. To suggest a change, open an issue describing the problem or proposed improvement. For code contributions, use a separate branch, keep changes focused and run `npm test` and `npm run check:deployment` before opening a pull request.
+
+Never include credentials, environment files or real personal data. Use a local database and fictional records for development and testing.
+
+## License
+
+No software licence has been declared in this repository. Public access to the source does not grant permission to reuse or redistribute it. CLAW branding, supplied designs and third-party assets remain subject to their respective owners’ permissions and licences.
+
+## Acknowledgements
+
+Thank you to the UX200 students for supplying the [CLAW design documentation](https://www.figma.com/design/1NsI5xa1XPe75tz7dLW3ag?node-id=6138-10854), and to the maintainers of the open-source tools used in this project.
+
+CLAW is the subject of this assessment demonstration; the project is not an official CLAW fundraising service.
+
+## Contact
+
+For project questions or feedback, [open an issue on GitHub](https://github.com/KIRSTEN-23/MERN_CLAW_NPO_Website/issues).
+
+## Final Note
 
 This is an assessment demonstration, not an official CLAW fundraising service. The AWS single-server setup has no high availability; its database volume must be backed up before future schema changes. Keep both deployments available for assessment and review ongoing costs afterward.
